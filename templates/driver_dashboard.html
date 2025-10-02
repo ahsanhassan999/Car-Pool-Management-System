@@ -1,18 +1,412 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarPool Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --navbar-height: 60px;
+            --primary-color: #6366f1;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+        }
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.rtl.min.css" integrity="sha384-CfCrinSRH2IR6a4e6fy2q6ioOX7O6Mtm1L9vRvFZ1trBncWmMePhzvafv7oIcWiW" crossorigin="anonymous">
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+        }
 
-    <title>Driver</title>
-  </head>
-  <body>
-    <h1>Dashboard page</h1>
+        /* Top Navbar */
+        .top-navbar {
+            height: var(--navbar-height);
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            z-index: 1000;
+            transition: left 0.3s ease;
+        }
 
+        .top-navbar.sidebar-collapsed {
+            left: 70px;
+        }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        /* Search Bar */
+        .search-form {
+            max-width: 400px;
+            position: relative;
+        }
 
-  </body>
+        .search-form input {
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 8px 40px 8px 40px;
+            background-color: #f8fafc;
+            transition: all 0.3s;
+        }
+
+        .search-form input:focus {
+            background-color: #ffffff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            transition: width 0.3s ease;
+            z-index: 1001;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-brand {
+            height: var(--navbar-height);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: #ffffff;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            margin-right: 12px;
+        }
+
+        .sidebar.collapsed .sidebar-brand span {
+            display: none;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .menu-item:hover {
+            background: var(--sidebar-hover);
+            color: #ffffff;
+        }
+
+        .menu-item.active {
+            background: var(--primary-color);
+            color: #ffffff;
+        }
+
+        .menu-item i {
+            font-size: 1.25rem;
+            margin-right: 12px;
+            min-width: 24px;
+        }
+
+        .sidebar.collapsed .menu-item span {
+            display: none;
+        }
+
+        /* User Profile Dropdown */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .user-profile:hover {
+            background: #f1f5f9;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Notifications */
+        .notification-badge {
+            position: relative;
+        }
+
+        .notification-badge .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--navbar-height);
+            padding: 30px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 70px;
+        }
+
+        /* Toggle Button */
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-toggle:hover {
+            background: #f1f5f9;
+            color: var(--primary-color);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .top-navbar {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .search-form {
+                max-width: 200px;
+            }
+        }
+
+        /* Page Header */
+        .page-header {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-car-front-fill"></i>
+            <span>CarPool</span>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="#" class="menu-item active">
+                <i class="bi bi-car-front-fill"></i>
+                <span>All Rides</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>Your Ride</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="bi bi-speedometer2"></i>
+                <span>Vehicle Details</span>
+            </a>
+          
+        </div>
+    </div>
+
+    <!-- Top Navbar -->
+    <nav class="top-navbar" id="topNavbar">
+        <div class="container-fluid h-100">
+            <div class="row h-100 align-items-center">
+                <div class="col-auto">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="col">
+                    <form class="search-form">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" class="form-control" placeholder="Search rides, users, bookings...">
+                    </form>
+                </div>
+
+                <!-- Right Side Items -->
+                <div class="col-auto">
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Notifications -->
+                        <div class="dropdown">
+                            <button class="btn btn-link text-decoration-none notification-badge" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell fs-5 text-secondary"></i>
+                                <span class="badge bg-danger">3</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
+                                <li><h6 class="dropdown-header">Notifications</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <div class="d-flex">
+                                            <i class="bi bi-check-circle text-success me-2"></i>
+                                            <div>
+                                                <strong>New Booking</strong>
+                                                <p class="mb-0 small text-muted">John booked your ride to Airport</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <div class="d-flex">
+                                            <i class="bi bi-chat-dots text-primary me-2"></i>
+                                            <div>
+                                                <strong>New Message</strong>
+                                                <p class="mb-0 small text-muted">Sarah sent you a message</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center small" href="#">View all notifications</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="dropdown">
+                            <div class="user-profile" data-bs-toggle="dropdown">
+                                <div class="user-avatar">HR</div>
+                                <div class="d-none d-md-block">
+                                    <div class="fw-semibold">Hassan Rizvi</div>
+                                    <div class="small text-muted">Driver</div>
+                                </div>
+                                <i class="bi bi-chevron-down text-muted"></i>
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> My Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-question-circle me-2"></i> Help</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="page-header">
+            <h3 class="mb-0">Dashboard</h3>
+            <p class="text-muted mb-0">Welcome back! Here's what's happening today.</p>
+        </div>
+
+        <!-- Your dashboard content goes here -->
+        <div class="col-auto">
+          <div class="page-header">
+            <h5 class="mb-0">From Johar, Block 17 To Defence, Phase 8</h5>
+            <p class="text-muted mb-0">Driver Name: Ahsan Hassan |
+              Vehicle: 2015 Toyota Carolla |
+              Total Seats: 3 |
+              Availible Seats: 2 |
+            </p>
+          </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const topNavbar = document.getElementById('topNavbar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        sidebarToggle.addEventListener('click', () => {
+            // For desktop
+            if (window.innerWidth > 768) {
+                sidebar.classList.toggle('collapsed');
+                topNavbar.classList.toggle('sidebar-collapsed');
+                mainContent.classList.toggle('sidebar-collapsed');
+            } else {
+                // For mobile
+                sidebar.classList.toggle('mobile-open');
+            }
+        });
+
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove('mobile-open');
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+    </script>
+</body>
 </html>

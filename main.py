@@ -117,9 +117,12 @@ def login():
                 if user['role'].lower() == 'driver':
                     print(f"🚗 Redirecting to driver dashboard")
                     return redirect(url_for('driver_dashboard'))
-                else:
+                elif user['role'].lower() == 'rider':
                     print(f"🎒 Redirecting to rider dashboard")
                     return redirect(url_for('rider_dashboard'))
+                elif user['role'].lower() == 'admin':
+                    print(f"🎒 Redirecting to admin dashboard")
+                    return redirect(url_for('admin_dashboard'))
             else:
                 print("❌ Invalid password")
                 flash('Invalid email or password!', 'error')
@@ -252,12 +255,8 @@ def driver_dashboard():
         flash('Access denied!', 'error')
         return redirect(url_for('login'))
     
-    return f"""
-    <h1>Welcome Driver: {session['user_name']}</h1>
-    <p>Email: {session['user_email']}</p>
-    <p>Role: {session['user_role']}</p>
-    <a href="/logout">Logout</a>
-    """
+    # FIXED: Added .html extension
+    return render_template('driver_dashboard.html')
 
 @app.route('/rider-dashboard')
 def rider_dashboard():
@@ -269,12 +268,20 @@ def rider_dashboard():
         flash('Access denied!', 'error')
         return redirect(url_for('login'))
     
-    return f"""
-    <h1>Welcome Rider: {session['user_name']}</h1>
-    <p>Email: {session['user_email']}</p>
-    <p>Role: {session['user_role']}</p>
-    <a href="/logout">Logout</a>
-    """
+    # FIXED: Added .html extension
+    return render_template('rider_dashboard.html')
+
+@app.route('/admin-dashboard')
+def admin_dashboard():
+    if 'user_id' not in session:
+        flash('Please login first!', 'error')
+        return redirect(url_for('login'))
+    
+    if session.get('user_role', '').lower() == 'admin':
+        return render_template('admin_dashboard.html')
+    elif session.get('user_role', '').lower() != 'admin':
+        flash('Access denied!', 'error')
+        return redirect(url_for('login'))
 
 @app.route('/demo')
 def demo():
