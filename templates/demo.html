@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CarPool</title>
+    <title>Sign Up - CarPool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base styles for error messages */
         .error-message {
             display: none;
             font-size: 0.875rem;
@@ -19,8 +18,6 @@
         .input-error {
             border-color: #dc2626 !important;
         }
-        
-        /* Slow bounce animation for the car icon */
         @keyframes bounce-slow {
             0%, 100% {
                 transform: translateY(0);
@@ -30,12 +27,7 @@
             }
         }
         .animate-bounce-slow {
-            animation: bounce-fast .5s ease-in-out infinite;
-        }
-        /* Custom font import for better look */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
+            animation: bounce-slow 2s ease-in-out infinite;
         }
     </style>
 </head>
@@ -53,7 +45,7 @@
                     <a href="/" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">Home</a>
                     <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">About</a>
                     <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">Services</a>
-                    <a href="/signup" class="bg-green-600 text-white hover:bg-green-800 px-4 py-2 rounded-full text-sm font-medium shadow-md transition duration-300">Sign Up</a>
+                    <a href="/login" class="bg-blue-800 text-white hover:bg-blue-900 px-4 py-2 rounded-full text-sm font-medium shadow-md transition duration-300">Login</a>
                 </div>
                 
                 <!-- Mobile Menu Button (Hamburger) -->
@@ -71,81 +63,157 @@
                 <a href="/" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Home</a>
                 <a href="#" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">About</a>
                 <a href="#" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Services</a>
-                <a href="/signup" class="text-green-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Sign Up</a>
+                <a href="/login" class="text-indigo-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Login</a>
             </div>
         </div>
     </nav>
     <!-- End Responsive Navigation Bar -->
-    
-    <!-- Login Form Container -->
+
+    <!-- Sign Up Form Container -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <!-- Reduced max-width for better focus on a login form -->
-        <div class="max-w-md mx-auto"> 
-            <div class="bg-white rounded-xl p-6 sm:p-10 shadow-2xl">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-xl shadow-xl p-6 sm:p-10">
                 
                 <!-- Header -->
-                <div class="text-center mb-10">
-                    <div class="text-6xl mb-4 animate-bounce-slow">🔑</div> <!-- Updated icon to key for Login -->
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">Welcome Back!</h1>
-                    <p class="text-gray-500">Log in to find or offer a ride.</p>
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4 animate-bounce-slow">🚗</div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">Create Your Account</h1>
+                    <p class="text-lg text-gray-600">Join CarPool and start sharing rides today</p>
                 </div>
-                
-                <!-- Login Form -->
-                <form id="loginForm" novalidate>
-                    
-                    <!-- Email Field -->
-                    <div class="mb-6"> <!-- Added margin-bottom for spacing -->
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
-                            placeholder="Enter your email"
-                            required
-                        >
-                        <!-- CHANGE: Generic error message, details handled by JS -->
-                        <span class="error-message" id="emailError"></span> 
-                    </div>
 
-                    <!-- Password Field -->
-                    <div class="mb-6"> <!-- Added margin-bottom for spacing -->
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
-                            placeholder="Enter your password"
-                            required
-                        >
-                        <!-- CHANGE: Generic error message, details handled by JS -->
-                        <span class="error-message" id="passwordError"></span>
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-4 p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700 border border-red-400{% else %}bg-green-100 text-green-700 border border-green-400{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Sign Up Form -->
+                <form id="signupForm" method="POST" action="{{ url_for('signup') }}">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Name Field -->
+                        <div class="md:col-span-2">
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                                placeholder="Enter your full name"
+                                required
+                            >
+                            <span class="error-message" id="nameError">Please enter your full name</span>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                                placeholder="Enter your email"
+                                required
+                            >
+                            <span class="error-message" id="emailError">Please enter a valid email address</span>
+                        </div>
+
+                        <!-- Phone Number Field -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                                placeholder="Enter your phone number"
+                                required
+                            >
+                            <span class="error-message" id="phoneError">Please enter a valid phone number</span>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Your Role *</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="relative flex items-center justify-center p-6 border-2 border-gray-300 rounded-xl cursor-pointer transition duration-300 hover:border-indigo-500 hover:shadow-lg has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 has-[:checked]:shadow-xl">
+                                    <input type="radio" name="role" value="driver" class="sr-only" required>
+                                    <div class="text-center">
+                                        <span class="text-4xl block mb-2">🚘</span>
+                                        <span class="text-lg font-semibold text-gray-800">Driver</span>
+                                        <p class="text-xs text-gray-600 mt-1">Offer rides to others</p>
+                                    </div>
+                                </label>
+                                <label class="relative flex items-center justify-center p-6 border-2 border-gray-300 rounded-xl cursor-pointer transition duration-300 hover:border-green-500 hover:shadow-lg has-[:checked]:border-green-600 has-[:checked]:bg-green-50 has-[:checked]:shadow-xl">
+                                    <input type="radio" name="role" value="rider" class="sr-only" required>
+                                    <div class="text-center">
+                                        <span class="text-4xl block mb-2">🎒</span>
+                                        <span class="text-lg font-semibold text-gray-800">Rider</span>
+                                        <p class="text-xs text-gray-600 mt-1">Find and book rides</p>
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="error-message" id="roleError">Please select a role</span>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                                placeholder="Create a password"
+                                required
+                            >
+                            <span class="error-message" id="passwordError">Password must be at least 6 characters</span>
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div>
+                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
+                                placeholder="Re-enter your password"
+                                required
+                            >
+                            <span class="error-message" id="confirmPasswordError">Passwords do not match</span>
+                        </div>
+
                     </div>
 
                     <!-- Submit Button -->
                     <div class="mt-8">
                         <button 
                             type="submit" 
-                            class="w-full bg-gray-700 text-white font-bold text-lg py-4 rounded-full hover:bg-gray-900 transform hover:scale-105 transition duration-300 shadow-lg"
+                            class="w-full bg-green-600 text-white font-bold text-lg py-4 rounded-full hover:bg-green-700 transform hover:scale-105 transition duration-300 shadow-lg"
                         >
-                            Log In
+                            Sign Up Now
                         </button>
                     </div>
 
-                    <!-- Sign Up Link -->
+                    <!-- Login Link -->
                     <p class="text-center text-sm text-gray-600 mt-6">
-                        Don't have an account?
-                        <a href="/signup" class="text-green-600 hover:text-green-700 font-semibold">Sign Up here</a>
+                        Already have an account? 
+                        <a href="/login" class="text-indigo-600 hover:text-indigo-700 font-semibold">Login here</a>
                     </p>
 
                 </form>
             </div>
         </div>
     </div>
-    <!-- End Login Form Container -->
-    
-    <!-- JavaScript for Mobile Menu and Form Validation -->
+
     <script>
         // Mobile menu toggle
         const menuButton = document.getElementById('menu-button');
@@ -155,26 +223,35 @@
             mobileMenu.classList.toggle('hidden');
         });
 
-        const form = document.getElementById('loginForm');
+        const form = document.getElementById('signupForm');
         
         // Validation functions
+        function validateName(name) {
+            return name.trim().length >= 2;
+        }
+
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
         }
 
-        function validatePassword(password) {
-            // Check for minimum length of 6 characters
-            return password.length >= 6; 
+        function validatePhone(phone) {
+            const re = /^[\d\s\-\+\(\)]{10,}$/;
+            return re.test(phone.trim());
         }
-        
-        // Error display functions
-        function showError(fieldId, errorId, message) {
-            const errorElement = document.getElementById(errorId);
+
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        function validateRole() {
+            const role = document.querySelector('input[name="role"]:checked');
+            return role !== null;
+        }
+
+        function showError(fieldId, errorId) {
             document.getElementById(fieldId).classList.add('input-error');
-            // Dynamically set the message for sensible feedback
-            errorElement.textContent = message;
-            errorElement.classList.add('show');
+            document.getElementById(errorId).classList.add('show');
         }
 
         function clearError(fieldId, errorId) {
@@ -182,68 +259,104 @@
             document.getElementById(errorId).classList.remove('show');
         }
 
-        // Real-time validation (on input)
+        // Real-time validation
+        document.getElementById('name').addEventListener('input', function() {
+            if (validateName(this.value)) {
+                clearError('name', 'nameError');
+            }
+        });
+
         document.getElementById('email').addEventListener('input', function() {
-            const email = this.value.trim();
-            if (email === '') {
-                 showError('email', 'emailError', 'Email address is required.');
-            } else if (validateEmail(email)) {
+            if (validateEmail(this.value)) {
                 clearError('email', 'emailError');
-            } else {
-                showError('email', 'emailError', 'Please enter a valid email address.');
+            }
+        });
+
+        document.getElementById('phone').addEventListener('input', function() {
+            if (validatePhone(this.value)) {
+                clearError('phone', 'phoneError');
             }
         });
 
         document.getElementById('password').addEventListener('input', function() {
-            const password = this.value;
-            if (password === '') {
-                showError('password', 'passwordError', 'Password is required.');
-            } else if (validatePassword(password)) {
+            if (validatePassword(this.value)) {
                 clearError('password', 'passwordError');
-            } else {
-                 showError('password', 'passwordError', 'Password must be at least 6 characters.');
             }
         });
 
-        // Form submission (on click)
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            if (this.value === password && password !== '') {
+                clearError('confirmPassword', 'confirmPasswordError');
+            }
+        });
+
+        document.querySelectorAll('input[name="role"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (validateRole()) {
+                    document.getElementById('roleError').classList.remove('show');
+                }
+            });
+        });
+
+        // Form submission
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             let isValid = true;
 
-            // Reset errors
+            // Clear all errors first
             document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
             document.querySelectorAll('input').forEach(el => el.classList.remove('input-error'));
 
-            // Validate email
-            const email = document.getElementById('email').value.trim(); // Trim spaces
-            if (email === '') {
-                showError('email', 'emailError', 'Email address is required.');
+            // Validate name
+            const name = document.getElementById('name').value;
+            if (!validateName(name)) {
+                showError('name', 'nameError');
                 isValid = false;
-            } else if (!validateEmail(email)) {
-                showError('email', 'emailError', 'Please enter a valid email address.');
+            }
+
+            // Validate email
+            const email = document.getElementById('email').value;
+            if (!validateEmail(email)) {
+                showError('email', 'emailError');
+                isValid = false;
+            }
+
+            // Validate phone
+            const phone = document.getElementById('phone').value;
+            if (!validatePhone(phone)) {
+                showError('phone', 'phoneError');
+                isValid = false;
+            }
+
+            // Validate role
+            if (!validateRole()) {
+                document.getElementById('roleError').classList.add('show');
                 isValid = false;
             }
 
             // Validate password
             const password = document.getElementById('password').value;
-            if (password === '') {
-                showError('password', 'passwordError', 'Password is required.');
+            if (!validatePassword(password)) {
+                showError('password', 'passwordError');
                 isValid = false;
-            } else if (!validatePassword(password)) {
-                showError('password', 'passwordError', 'Password must be at least 6 characters.');
+            }
+
+            // Validate confirm password
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword || confirmPassword === '') {
+                showError('confirmPassword', 'confirmPasswordError');
                 isValid = false;
             }
 
             // If all validations pass
             if (isValid) {
-                // IMPORTANT: In a real app, this is where you would call the server API (e.g., using fetch)
-                // If using Firebase, you'd call signInWithEmailAndPassword here.
-                alert(`Login attempt successful (Client-side validation passed):\nEmail: ${email}`);
+                // Submit the form to Flask backend
+                form.submit();
             }
         });
     </script>
-    <!-- End JavaScript for Mobile Menu and Form Validation -->
-     
+
 </body>
 </html>
