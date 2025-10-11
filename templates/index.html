@@ -4,81 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CarPool - Share Your Ride</title>
-    <link rel="stylesheet" href="/static/base.css">
-    <link rel="stylesheet" href="/static/animations.css">
-    <link rel="stylesheet" href="/static/components.css">
-    <link rel="stylesheet" href="/static/layout.css">
-    </head>
+    <!-- Load Tailwind CSS CDN for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Link to external custom CSS file (for font definition) -->
+    <style>
+    .my-custom-container {
+        /* 1. Set a maximum width for the content area */
+        max-width: 960px; /* You can choose any width (e.g., 1140px, 1200px) */
+    
+        /* 2. Center the container on the page */
+        margin-left: auto;
+        margin-right: auto;
+    
+        /* 3. Add padding to prevent content from touching the screen edges on small devices */
+        padding-left: 15px;
+        padding-right: 15px;
+    
+        /* Optional: Add visual styles */
+        background-color: #bcbcbc;
+        border: 1px solid #007bff;
+        border-radius: 8px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    </style> 
+</head>
 <body>
-    <nav>
-        <div class="nav-container">
-            <a href="#" class="nav-logo">🚗 CarPool</a>
-            <div class="nav-buttons">
-                <a href="login.html" class="nav-btn login-btn">Login</a>
-                <a href="signup.html" class="nav-btn signup-btn">Sign Up</a>
+
+    <!-- Responsive Navigation Bar -->
+    <nav class="bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="#" class="text-white text-2xl font-bold rounded-lg p-2 transition duration-300 hover:bg-gray-700">🚗 CarPool.</a>
+                
+                <!-- Desktop Links -->
+                <div class="hidden md:flex space-x-4">
+                    <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">Home</a>
+                    <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">About</a>
+                    <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">Services</a>
+                    <a href="/login" class="bg-blue-800 text-white hover:bg-blue-900 px-4 py-2 rounded-full text-sm font-medium shadow-md transition duration-300">Login</a>
+                    <a href="/signup" class="bg-green-600 text-white hover:bg-green-800 px-4 py-2 rounded-full text-sm font-medium shadow-md transition duration-300">Sign Up</a>
+                </div>
+                
+                <!-- Mobile Menu Button (Hamburger) -->
+                <button id="menu-button" class="md:hidden text-gray-300 hover:text-white p-2 rounded-md focus:outline-none transition duration-300" aria-label="Toggle Menu">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="#" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="#" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Services</a>
+                <a href="/login" class="text-indigo-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Login</a>
+                <a href="/signup" class="text-green-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Sign Up</a>
             </div>
         </div>
     </nav>
+    <!-- End Responsive Navigation Bar -->
 
-    <div class="container">
-        <div class="header">
-            <div class="logo">🚗</div>
-            <h1>CarPool Management System</h1>
-            <p class="tagline">Your Smart Solution for Shared Commutes<br>Connect • Share • Save • Travel Together</p>
-        </div>
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <div class="intro-section">
-            <h2>Streamline Your Daily Commute</h2>
-            <p>Whether you're a student, professional, or part of a community, our CarPool Management System makes carpooling simple, efficient, and eco-friendly. Post rides, find travel companions, and manage bookings all in one place.</p>
-        </div>
+        <!-- Header Section -->
+        <header class="text-center py-16 bg-white rounded-xl shadow-lg mb-12">
+            <div class="text-6xl mb-4 animate-bounce-slow">🚗</div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-4">CarPool Management System</h1>
+            <p class="tagline text-xl sm:text-2xl text-gray-600">Your Smart Solution for Shared Commutes</p>
+            <p class="tagline text-lg font-semibold text-indigo-600 mt-2">Connect • Share • Save • Travel Together</p>
+        </header>
 
-        <div class="user-types">
-            <div class="user-type">
-                <h3>🚘 For Drivers</h3>
-                <ul>
-                    <li>Post ride offers with complete trip details</li>
-                    <li>Set your own pricing and available seats</li>
-                    <li>Manage bookings and approve riders</li>
-                    <li>Update or cancel rides anytime</li>
-                    <li>Track your ride history</li>
-                </ul>
+        <!-- Intro Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-4 text-center text-gray-800">Streamline Your Daily Commute</h2>
+            <p class="text-center max-w-3xl mx-auto text-gray-700 text-lg">Whether you're a student, professional, or part of a community, our CarPool Management System makes carpooling simple, efficient, and eco-friendly. Post rides, find travel companions, and manage bookings all in one place.</p>
+        </section>
+
+        <!-- User Types Section (Responsive Grid) -->
+        <section class="mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- For Drivers Card -->
+                <div class="bg-white p-8 rounded-xl shadow-xl border-t-4 border-indigo-600 transition duration-300 hover:shadow-2xl">
+                    <h3 class="text-2xl font-semibold text-indigo-600 mb-4 flex items-center">
+                        <span class="text-3xl mr-2">🚘</span> For Drivers
+                    </h3>
+                    <ul class="space-y-3 text-gray-700 list-disc list-inside">
+                        <li>Post ride offers with complete trip details</li>
+                        <li>Set your own pricing and available seats</li>
+                        <li>Manage bookings and approve riders</li>
+                        <li>Update or cancel rides anytime</li>
+                        <li>Track your ride history</li>
+                    </ul>
+                </div>
+
+                <!-- For Riders Card -->
+                <div class="bg-white p-8 rounded-xl shadow-xl border-t-4 border-green-500 transition duration-300 hover:shadow-2xl">
+                    <h3 class="text-2xl font-semibold text-green-600 mb-4 flex items-center">
+                        <span class="text-3xl mr-2">🎒</span> For Riders
+                    </h3>
+                    <ul class="space-y-3 text-gray-700 list-disc list-inside">
+                        <li>Search rides by location and date</li>
+                        <li>View detailed trip and driver information</li>
+                        <li>Book seats instantly</li>
+                        <li>Manage your bookings effortlessly</li>
+                        <li>Connect with verified drivers</li>
+                    </ul>
+                </div>
             </div>
+        </section>
 
-            <div class="user-type">
-                <h3>🎒 For Riders</h3>
-                <ul>
-                    <li>Search rides by location and date</li>
-                    <li>View detailed trip and driver information</li>
-                    <li>Book seats instantly</li>
-                    <li>Manage your bookings effortlessly</li>
-                    <li>Connect with verified drivers</li>
-                </ul>
+        <!-- Features Section (Responsive Grid) -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">Why Choose CarPool?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Feature 1: Cost Effective -->
+                <div class="feature text-center bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
+                    <div class="feature-icon text-5xl mb-3">💰</div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Cost Effective</h3>
+                    <p class="text-gray-600">Split fuel costs and reduce daily commute expenses significantly with transparent pricing.</p>
+                </div>
+
+                <!-- Feature 2: Eco-Friendly -->
+                <div class="feature text-center bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
+                    <div class="feature-icon text-5xl mb-3">🌍</div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Eco-Friendly</h3>
+                    <p class="text-gray-600">Reduce carbon emissions and contribute to a sustainable, cleaner environment for future generations.</p>
+                </div>
+
+                <!-- Feature 3: Safe & Secure -->
+                <div class="feature text-center bg-white p-6 rounded-xl shadow-md transition duration-300 hover:shadow-lg">
+                    <div class="feature-icon text-5xl mb-3">🔒</div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Safe & Secure</h3>
+                    <p class="text-gray-600">Driver verification system and booking management ensure safe and reliable rides every time.</p>
+                </div>
+
             </div>
-        </div>
+        </section>
 
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">💰</div>
-                <h3>Cost Effective</h3>
-                <p>Split fuel costs and reduce daily commute expenses significantly with transparent pricing.</p>
-            </div>
+        <!-- CTA Section -->
+        <section class="text-center py-12 bg-gray-800 rounded-xl shadow-xl">
+            <h2 class="text-3xl font-bold text-white mb-6">Ready to start sharing your commute?</h2>
+            <a href="/signup" class="cta-button inline-block bg-white text-blue-600 font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:bg-gray-100 transform hover:scale-105 transition duration-300">
+                Get Started
+            </a>
+        </section>
 
-            <div class="feature">
-                <div class="feature-icon">🌍</div>
-                <h3>Eco-Friendly</h3>
-                <p>Reduce carbon emissions and contribute to a sustainable, cleaner environment for future generations.</p>
-            </div>
-
-            <div class="feature">
-                <div class="feature-icon">🔒</div>
-                <h3>Safe & Secure</h3>
-                <p>Driver verification system and booking management ensure safe and reliable rides every time.</p>
-            </div>
-        </div>
-
-        <div class="cta-section">
-            <a href="signup.html" class="cta-button">Get Started</a>
-        </div>
     </div>
+    <!-- End Main Content Container -->
+     
+    <!-- JavaScript for dynamic functionality (like menu toggle) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get the mobile menu button and the collapsible menu div
+        const menuButton = document.getElementById('menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+    
+        if (menuButton && mobileMenu) {
+            // Add a click listener to the menu button
+            menuButton.addEventListener('click', () => {
+                // Toggle the 'hidden' class on the mobile menu to show/hide it
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    });
+    </script>
+    <!--End of JavaScript for dynamic functionality (like menu toggle)-->
 </body>
 </html>
