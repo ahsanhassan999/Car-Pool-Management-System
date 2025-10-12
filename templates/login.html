@@ -6,7 +6,6 @@
     <title>Login - CarPool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base styles for error messages */
         .error-message {
             display: none;
             font-size: 0.875rem;
@@ -20,7 +19,6 @@
             border-color: #dc2626 !important;
         }
         
-        /* Slow bounce animation for the car icon */
         @keyframes bounce-slow {
             0%, 100% {
                 transform: translateY(0);
@@ -30,9 +28,9 @@
             }
         }
         .animate-bounce-slow {
-            animation: bounce-fast .5s ease-in-out infinite;
+            animation: bounce-slow 2s ease-in-out infinite;
         }
-        /* Custom font import for better look */
+        
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
@@ -45,10 +43,8 @@
     <nav class="bg-gray-800 shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
                 <a href="/" class="text-white text-2xl font-bold rounded-lg p-2 transition duration-300 hover:bg-gray-700">🚗 CarPool.</a>
                 
-                <!-- Desktop Links -->
                 <div class="hidden md:flex space-x-4">
                     <a href="/" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">Home</a>
                     <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">About</a>
@@ -56,7 +52,6 @@
                     <a href="/signup" class="bg-green-600 text-white hover:bg-green-800 px-4 py-2 rounded-full text-sm font-medium shadow-md transition duration-300">Sign Up</a>
                 </div>
                 
-                <!-- Mobile Menu Button (Hamburger) -->
                 <button id="menu-button" class="md:hidden text-gray-300 hover:text-white p-2 rounded-md focus:outline-none transition duration-300" aria-label="Toggle Menu">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
@@ -65,7 +60,6 @@
             </div>
         </div>
 
-        <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu" class="hidden md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="/" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Home</a>
@@ -75,26 +69,35 @@
             </div>
         </div>
     </nav>
-    <!-- End Responsive Navigation Bar -->
     
     <!-- Login Form Container -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <!-- Reduced max-width for better focus on a login form -->
-        <div class="max-w-md mx-auto"> 
+        <div class="max-w-md mx-auto">
             <div class="bg-white rounded-xl p-6 sm:p-10 shadow-2xl">
                 
                 <!-- Header -->
                 <div class="text-center mb-10">
-                    <div class="text-6xl mb-4 animate-bounce-slow">🔑</div> <!-- Updated icon to key for Login -->
+                    <div class="text-6xl mb-4 animate-bounce-slow">🔑</div>
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">Welcome Back!</h1>
                     <p class="text-gray-500">Log in to find or offer a ride.</p>
                 </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-4 p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700 border border-red-400{% else %}bg-green-100 text-green-700 border border-green-400{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 
                 <!-- Login Form -->
-                <form id="loginForm" novalidate>
+                <form id="loginForm" method="POST" action="{{ url_for('login') }}" novalidate>
                     
                     <!-- Email Field -->
-                    <div class="mb-6"> <!-- Added margin-bottom for spacing -->
+                    <div class="mb-6">
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
                         <input 
                             type="email" 
@@ -104,12 +107,11 @@
                             placeholder="Enter your email"
                             required
                         >
-                        <!-- CHANGE: Generic error message, details handled by JS -->
-                        <span class="error-message" id="emailError"></span> 
+                        <span class="error-message" id="emailError"></span>
                     </div>
 
                     <!-- Password Field -->
-                    <div class="mb-6"> <!-- Added margin-bottom for spacing -->
+                    <div class="mb-6">
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
                         <input 
                             type="password" 
@@ -119,7 +121,6 @@
                             placeholder="Enter your password"
                             required
                         >
-                        <!-- CHANGE: Generic error message, details handled by JS -->
                         <span class="error-message" id="passwordError"></span>
                     </div>
 
@@ -143,17 +144,17 @@
             </div>
         </div>
     </div>
-    <!-- End Login Form Container -->
     
-    <!-- JavaScript for Mobile Menu and Form Validation -->
     <script>
         // Mobile menu toggle
         const menuButton = document.getElementById('menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         
-        menuButton.addEventListener('click', function() {
-            mobileMenu.classList.toggle('hidden');
-        });
+        if (menuButton && mobileMenu) {
+            menuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
 
         const form = document.getElementById('loginForm');
         
@@ -164,15 +165,13 @@
         }
 
         function validatePassword(password) {
-            // Check for minimum length of 6 characters
-            return password.length >= 6; 
+            return password.length >= 6;
         }
         
         // Error display functions
         function showError(fieldId, errorId, message) {
             const errorElement = document.getElementById(errorId);
             document.getElementById(fieldId).classList.add('input-error');
-            // Dynamically set the message for sensible feedback
             errorElement.textContent = message;
             errorElement.classList.add('show');
         }
@@ -182,11 +181,11 @@
             document.getElementById(errorId).classList.remove('show');
         }
 
-        // Real-time validation (on input)
+        // Real-time validation
         document.getElementById('email').addEventListener('input', function() {
             const email = this.value.trim();
             if (email === '') {
-                 showError('email', 'emailError', 'Email address is required.');
+                showError('email', 'emailError', 'Email address is required.');
             } else if (validateEmail(email)) {
                 clearError('email', 'emailError');
             } else {
@@ -201,11 +200,11 @@
             } else if (validatePassword(password)) {
                 clearError('password', 'passwordError');
             } else {
-                 showError('password', 'passwordError', 'Password must be at least 6 characters.');
+                showError('password', 'passwordError', 'Password must be at least 6 characters.');
             }
         });
 
-        // Form submission (on click)
+        // Form submission
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -216,7 +215,7 @@
             document.querySelectorAll('input').forEach(el => el.classList.remove('input-error'));
 
             // Validate email
-            const email = document.getElementById('email').value.trim(); // Trim spaces
+            const email = document.getElementById('email').value.trim();
             if (email === '') {
                 showError('email', 'emailError', 'Email address is required.');
                 isValid = false;
@@ -235,15 +234,37 @@
                 isValid = false;
             }
 
-            // If all validations pass
+            // If all validations pass, submit via fetch
             if (isValid) {
-                // IMPORTANT: In a real app, this is where you would call the server API (e.g., using fetch)
-                // If using Firebase, you'd call signInWithEmailAndPassword here.
-                alert(`Login attempt successful (Client-side validation passed):\nEmail: ${email}`);
+                console.log("✅ Validation passed, submitting login...");
+                
+                const formData = new FormData(form);
+                
+                fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        return response.text();
+                    }
+                })
+                .then(html => {
+                    if (html) {
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
             }
         });
     </script>
-    <!-- End JavaScript for Mobile Menu and Form Validation -->
      
 </body>
 </html>
