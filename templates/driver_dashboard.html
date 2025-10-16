@@ -265,6 +265,10 @@
                 <i class="bi bi-speedometer2"></i>
                 <span>Vehicle Details</span>
             </a>
+            <a href="#" class="menu-item">
+                <i class="bi bi-person me-2"></i>
+                <span>My Profile</span>
+            </a>
           
         </div>
     </div>
@@ -329,10 +333,10 @@
                         <!-- User Profile -->
                         <div class="dropdown">
                             <div class="user-profile" data-bs-toggle="dropdown">
-                                <div class="user-avatar">HR</div>
+                                <div class="user-avatar">{{user_avatar}}</div>
                                 <div class="d-none d-md-block">
-                                    <div class="fw-semibold">Hassan Rizvi</div>
-                                    <div class="small text-muted">Driver</div>
+                                    <div class="fw-semibold">{{user_name}}</div>
+                                    <div class="small text-muted">{{user_role}}</div>
                                 </div>
                                 <i class="bi bi-chevron-down text-muted"></i>
                             </div>
@@ -353,8 +357,7 @@
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="page-header">
-            <h3 class="mb-0">Dashboard</h3>
-            <p class="text-muted mb-0">Welcome back! Here's what's happening today.</p>
+            <h3 class="mb-0">Hello, welcome back {{ user_name }}!</h3>
         </div>
 
         <!-- Your dashboard content goes here -->

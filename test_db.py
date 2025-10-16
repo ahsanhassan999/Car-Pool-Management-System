@@ -2,8 +2,8 @@ import mysql.connector
 
 print("Testing database connection...")
 
-def db_connect(config):
-        connection_configs = [
+def get_db_connection():
+    connection_configs = [
         {
             'host': '127.0.0.1',
             'user': 'root',
@@ -25,20 +25,12 @@ def db_connect(config):
             'database': 'Car-Pool-Management-System'
         }
     ]
-    for i, config in enumerate(connection_configs, 1):
+    
+    for config in connection_configs:
         try:
-            print(f"🔌 Connection attempt {i}...")
-            if 'unix_socket' in config:
-                print(f"   Using Unix socket: {config['unix_socket']}")
-            else:
-                print(f"   Host: {config['host']}, Port: {config['port']}")
-            
             conn = mysql.connector.connect(**config)
-            print("✅ Database connected successfully!")
             return conn
-        except mysql.connector.Error as err:
-            print(f"❌ Attempt {i} failed: {err}")
+        except mysql.connector.Error:
             continue
     
-    print("❌ All connection attempts failed!")
-    return None    
+    return None

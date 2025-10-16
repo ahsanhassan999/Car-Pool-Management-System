@@ -329,10 +329,10 @@
                         <!-- User Profile -->
                         <div class="dropdown">
                             <div class="user-profile" data-bs-toggle="dropdown">
-                                <div class="user-avatar">HR</div>
+                                <div class="user-avatar">{{user_avatar}}</div>
                                 <div class="d-none d-md-block">
-                                    <div class="fw-semibold">Hassan Rizvi</div>
-                                    <div class="small text-muted">Driver</div>
+                                    <div class="fw-semibold">{{user_name}}</div>
+                                    <div class="small text-muted">{{user_role}}</div>
                                 </div>
                                 <i class="bi bi-chevron-down text-muted"></i>
                             </div>
@@ -355,7 +355,7 @@
           <h5 class="mb-0">Welcome back! These are the active rides happening today.</h3>
       </div>
       <div class="page-header">
-          <h5 class="mb-8">Welcome back! These are the active rides happening today.</h3>
+          <h5 class="mb-8">Hello, welcome back {{user_name}}</h3>
       </div>
       <!-- Your dashboard content goes here -->
         <div class="column">

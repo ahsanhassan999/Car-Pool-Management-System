@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
-
+import os
 # Initialize the Flask application
 app = Flask(__name__)
-app.secret_key = 'abcd'  # Change this to a more secure key in production
+app.secret_key = os.urandom(24)  # Change this to a more secure key in production
 
 # Database configuration for XAMPP - Multiple connection attempts
 def get_db_connection():
