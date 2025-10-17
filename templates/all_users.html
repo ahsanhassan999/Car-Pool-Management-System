@@ -597,6 +597,19 @@
                                 <option value="Admin">Admin</option>
                             </select>
                         </div>
+
+                        <hr>
+                        <div class="mb-2">
+                            <div class="form-text">Change password (optional). Leave blank to keep current password.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" name="new_password" id="edit_new_password" minlength="6" autocomplete="new-password" placeholder="Leave blank to keep current password">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" name="confirm_password" id="edit_confirm_password" minlength="6" autocomplete="new-password" placeholder="Re-enter new password">
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -686,6 +699,11 @@
             document.getElementById('edit_email').value = email;
             document.getElementById('edit_phone').value = phone || '';
             document.getElementById('edit_role').value = role;
+            // Clear password fields on open
+            const np = document.getElementById('edit_new_password');
+            const cp = document.getElementById('edit_confirm_password');
+            if (np) np.value = '';
+            if (cp) cp.value = '';
             
             const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
             modal.show();

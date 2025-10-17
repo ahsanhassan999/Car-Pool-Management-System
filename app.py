@@ -369,6 +369,8 @@ def edit_user():
     email = request.form.get('email', '').strip()
     phone_number = request.form.get('phone_number', '').strip()
     role = request.form.get('role', '').strip()
+    new_password = request.form.get('new_password', '').strip()
+    confirm_password = request.form.get('confirm_password', '').strip()
 
     # Basic validation
     if not user_id or not name or not email or not role:
@@ -387,6 +389,21 @@ def edit_user():
     except ValueError:
         flash('Invalid user id.', 'error')
         return redirect(url_for('all_users'))
+
+    # Optional password change validation (admin-initiated)
+    hashed_password = None
+    password_change_requested = bool(new_password or confirm_password)
+    if password_change_requested:
+        if not new_password or not confirm_password:
+            flash('To change the password, fill both password fields.', 'error')
+            return redirect(url_for('all_users'))
+        if new_password != confirm_password:
+            flash('New passwords do not match.', 'error')
+            return redirect(url_for('all_users'))
+        if len(new_password) < 6:
+            flash('Password must be at least 6 characters!', 'error')
+            return redirect(url_for('all_users'))
+        hashed_password = generate_password_hash(new_password)
 
     try:
         conn = get_db_connection()
@@ -408,11 +425,17 @@ def edit_user():
         # Empty string should become NULL in DB
         phone_value = phone_number if phone_number else None
 
-        # Perform the update
-        update_sql = (
-            "UPDATE users SET name = %s, email = %s, phone_number = %s, role = %s WHERE user_id = %s"
-        )
-        cursor.execute(update_sql, (name, email, phone_value, role_normalized, user_id_int))
+        # Perform the update (optionally updating password)
+        if hashed_password is not None:
+            update_sql = (
+                "UPDATE users SET name = %s, email = %s, phone_number = %s, role = %s, password = %s WHERE user_id = %s"
+            )
+            cursor.execute(update_sql, (name, email, phone_value, role_normalized, hashed_password, user_id_int))
+        else:
+            update_sql = (
+                "UPDATE users SET name = %s, email = %s, phone_number = %s, role = %s WHERE user_id = %s"
+            )
+            cursor.execute(update_sql, (name, email, phone_value, role_normalized, user_id_int))
         conn.commit()
 
         cursor.close()
