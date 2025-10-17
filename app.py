@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+import secrets
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -39,6 +40,15 @@ def get_db_connection():
             continue
     
     return None
+
+# --- Security utilities ---
+def get_or_create_csrf_token() -> str:
+    """Return a stable CSRF token for the current session, creating one if needed."""
+    token = session.get('csrf_token')
+    if not token:
+        token = secrets.token_hex(32)
+        session['csrf_token'] = token
+    return token
 
 @app.route('/')
 def home():
@@ -346,13 +356,16 @@ def all_users():
         flash(f'An unexpected error occurred: {e}', 'error')
         return redirect(url_for('admin_dashboard'))
         
-    # Pass the list of user dictionaries to the template
+    # Generate CSRF token for forms on this page and
+    # pass the list of user dictionaries to the template
+    csrf_token = get_or_create_csrf_token()
     return render_template(
         'all_users.html', 
         user_name=user_name, 
         user_role=user_role, 
         user_avatar=user_avatar,
-        users=all_users_data
+        users=all_users_data,
+        csrf_token=csrf_token
     )
 # -----------------------------------------------------------
 
@@ -426,6 +439,12 @@ def edit_user():
     role = request.form.get('role', '').strip()
     new_password = request.form.get('new_password', '').strip()
     confirm_password = request.form.get('confirm_password', '').strip()
+
+    # CSRF validation
+    submitted_csrf = request.form.get('csrf_token', '')
+    if not submitted_csrf or submitted_csrf != session.get('csrf_token'):
+        flash('Invalid form submission. Please try again.', 'error')
+        return redirect(url_for('all_users'))
 
     # Basic validation
     if not user_id or not name or not email or not role:
@@ -506,6 +525,84 @@ def edit_user():
         flash(f'Unexpected error: {e}', 'error')
         return redirect(url_for('all_users'))
 
+
+@app.route('/admin-dashboard/add-user', methods=['POST'])
+def add_user():
+    # Access control
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
+        flash('Access denied!', 'error')
+        return redirect(url_for('login'))
+
+    # CSRF validation
+    submitted_csrf = request.form.get('csrf_token', '')
+    if not submitted_csrf or submitted_csrf != session.get('csrf_token'):
+        flash('Invalid form submission. Please try again.', 'error')
+        return redirect(url_for('all_users'))
+
+    # Read form data
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip()
+    phone_number = request.form.get('phone_number', '').strip()
+    role = request.form.get('role', '').strip()
+    password = request.form.get('password', '').strip()
+    confirm_password = request.form.get('confirm_password', '').strip()
+
+    # Basic validation
+    if not all([name, email, role, password, confirm_password]):
+        flash('Please fill in all required fields.', 'error')
+        return redirect(url_for('all_users'))
+
+    # Normalize and validate role
+    role_map = { 'driver': 'Driver', 'rider': 'Rider', 'admin': 'Admin' }
+    role_normalized = role_map.get(role.lower())
+    if not role_normalized:
+        flash('Invalid role selected.', 'error')
+        return redirect(url_for('all_users'))
+
+    if password != confirm_password:
+        flash('Passwords do not match.', 'error')
+        return redirect(url_for('all_users'))
+    if len(password) < 6:
+        flash('Password must be at least 6 characters!', 'error')
+        return redirect(url_for('all_users'))
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed while creating user!', 'error')
+            return redirect(url_for('all_users'))
+
+        cursor = conn.cursor()
+
+        # Ensure email is unique
+        cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            flash('Email already registered to another user.', 'error')
+            return redirect(url_for('all_users'))
+
+        hashed_password = generate_password_hash(password)
+        phone_value = phone_number if phone_number else None
+
+        insert_sql = (
+            "INSERT INTO users (name, email, phone_number, role, password) VALUES (%s, %s, %s, %s, %s)"
+        )
+        cursor.execute(insert_sql, (name, email, phone_value, role_normalized, hashed_password))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        flash('User created successfully.', 'success')
+        return redirect(url_for('all_users'))
+
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('all_users'))
+    except Exception as e:
+        flash(f'Unexpected error: {e}', 'error')
+        return redirect(url_for('all_users'))
 
 @app.route('/admin-dashboard/edit-car', methods=['POST'])
 def edit_car():
@@ -590,6 +687,12 @@ def delete_user():
         flash('Access denied!', 'error')
         return redirect(url_for('login'))
 
+    # CSRF validation
+    submitted_csrf = request.form.get('csrf_token', '')
+    if not submitted_csrf or submitted_csrf != session.get('csrf_token'):
+        flash('Invalid form submission. Please try again.', 'error')
+        return redirect(url_for('all_users'))
+
     user_id = request.form.get('user_id')
     try:
         user_id_int = int(user_id)
@@ -600,6 +703,28 @@ def delete_user():
     # Optional: prevent an admin from deleting their own account to avoid lockout
     if user_id_int == session.get('user_id'):
         flash('You cannot delete your own account while logged in.', 'error')
+        return redirect(url_for('all_users'))
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed while deleting user!', 'error')
+            return redirect(url_for('all_users'))
+
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id_int,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash('User deleted successfully.', 'success')
+        return redirect(url_for('all_users'))
+
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('all_users'))
+    except Exception as e:
+        flash(f'Unexpected error: {e}', 'error')
         return redirect(url_for('all_users'))
 
 
@@ -638,28 +763,6 @@ def delete_car():
     except Exception as e:
         flash(f'Unexpected error: {e}', 'error')
         return redirect(url_for('all_cars'))
-
-    try:
-        conn = get_db_connection()
-        if not conn:
-            flash('Database connection failed while deleting user!', 'error')
-            return redirect(url_for('all_users'))
-
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id_int,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        flash('User deleted successfully.', 'success')
-        return redirect(url_for('all_users'))
-
-    except mysql.connector.Error as err:
-        flash(f'Database error: {err}', 'error')
-        return redirect(url_for('all_users'))
-    except Exception as e:
-        flash(f'Unexpected error: {e}', 'error')
-        return redirect(url_for('all_users'))
 
 @app.route('/demo')
 def demo():
