@@ -356,6 +356,61 @@ def all_users():
     )
 # -----------------------------------------------------------
 
+# --- ROUTE: Fetches All Cars from DB ---
+@app.route('/admin-dashboard/all-cars')
+def all_cars():
+    # Access Control
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
+        flash('Access denied!', 'error')
+        return redirect(url_for('login'))
+
+    # User data for header display
+    user_name = session.get('user_name', 'Guest')
+    user_role = session.get('user_role', 'Unknown')
+    words = user_name.strip().split()
+    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
+
+    all_cars_data = []
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed while fetching cars!', 'error')
+            return redirect(url_for('admin_dashboard'))
+
+        cursor = conn.cursor()
+
+        # Explicitly select columns for consistent mapping
+        query = "SELECT car_id, user_id, make, model, license_plate, seats FROM cars"
+        cursor.execute(query)
+
+        column_names = [i[0] for i in cursor.description]
+        car_records = cursor.fetchall()
+        for record in car_records:
+            car_dict = dict(zip(column_names, record))
+            all_cars_data.append(car_dict)
+
+        cursor.close()
+        conn.close()
+
+    except mysql.connector.Error as err:
+        print(f"❌ Database error fetching cars: {err}")
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('admin_dashboard'))
+    except Exception as e:
+        print(f"❌ Unexpected error fetching cars: {e}")
+        flash(f'An unexpected error occurred: {e}', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+    return render_template(
+        'all_cars.html',
+        user_name=user_name,
+        user_role=user_role,
+        user_avatar=user_avatar,
+        cars=all_cars_data
+    )
+
+
 @app.route('/admin-dashboard/edit-user', methods=['POST'])
 def edit_user():
     # Access control
@@ -452,6 +507,82 @@ def edit_user():
         return redirect(url_for('all_users'))
 
 
+@app.route('/admin-dashboard/edit-car', methods=['POST'])
+def edit_car():
+    # Access control
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
+        flash('Access denied!', 'error')
+        return redirect(url_for('login'))
+
+    # Read form data
+    car_id = request.form.get('car_id')
+    owner_user_id = request.form.get('user_id', '').strip()
+    make = request.form.get('make', '').strip()
+    model = request.form.get('model', '').strip()
+    license_plate = request.form.get('license_plate', '').strip()
+    seats = request.form.get('seats', '').strip()
+
+    # Basic validation
+    if not all([car_id, owner_user_id, make, model, license_plate, seats]):
+        flash('Missing required fields.', 'error')
+        return redirect(url_for('all_cars'))
+
+    try:
+        car_id_int = int(car_id)
+        owner_user_id_int = int(owner_user_id)
+        seats_int = int(seats)
+        if seats_int <= 0:
+            raise ValueError('Seats must be positive')
+    except (TypeError, ValueError):
+        flash('Invalid numeric value for user id or seats.', 'error')
+        return redirect(url_for('all_cars'))
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed while updating car!', 'error')
+            return redirect(url_for('all_cars'))
+
+        cursor = conn.cursor()
+
+        # Ensure owner user exists
+        cursor.execute("SELECT user_id FROM users WHERE user_id = %s", (owner_user_id_int,))
+        owner_exists = cursor.fetchone()
+        if not owner_exists:
+            cursor.close()
+            conn.close()
+            flash('Owner user not found.', 'error')
+            return redirect(url_for('all_cars'))
+
+        # Ensure license plate is unique to this car
+        cursor.execute("SELECT car_id FROM cars WHERE license_plate = %s AND car_id != %s", (license_plate, car_id_int))
+        conflict = cursor.fetchone()
+        if conflict:
+            cursor.close()
+            conn.close()
+            flash('License plate already in use by another car.', 'error')
+            return redirect(url_for('all_cars'))
+
+        update_sql = (
+            "UPDATE cars SET user_id = %s, make = %s, model = %s, license_plate = %s, seats = %s WHERE car_id = %s"
+        )
+        cursor.execute(update_sql, (owner_user_id_int, make, model, license_plate, seats_int, car_id_int))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        flash('Car updated successfully.', 'success')
+        return redirect(url_for('all_cars'))
+
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('all_cars'))
+    except Exception as e:
+        flash(f'Unexpected error: {e}', 'error')
+        return redirect(url_for('all_cars'))
+
+
 @app.route('/admin-dashboard/delete-user', methods=['POST'])
 def delete_user():
     # Access control
@@ -470,6 +601,43 @@ def delete_user():
     if user_id_int == session.get('user_id'):
         flash('You cannot delete your own account while logged in.', 'error')
         return redirect(url_for('all_users'))
+
+
+@app.route('/admin-dashboard/delete-car', methods=['POST'])
+def delete_car():
+    # Access control
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
+        flash('Access denied!', 'error')
+        return redirect(url_for('login'))
+
+    car_id = request.form.get('car_id')
+    try:
+        car_id_int = int(car_id)
+    except (TypeError, ValueError):
+        flash('Invalid car id.', 'error')
+        return redirect(url_for('all_cars'))
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed while deleting car!', 'error')
+            return redirect(url_for('all_cars'))
+
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM cars WHERE car_id = %s", (car_id_int,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash('Car deleted successfully.', 'success')
+        return redirect(url_for('all_cars'))
+
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('all_cars'))
+    except Exception as e:
+        flash(f'Unexpected error: {e}', 'error')
+        return redirect(url_for('all_cars'))
 
     try:
         conn = get_db_connection()
