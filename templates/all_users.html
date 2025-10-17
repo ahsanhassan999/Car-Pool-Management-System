@@ -532,10 +532,10 @@
                             <td>{{ user.user_id }}</td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <button class="action-btn btn-edit" onclick="editUser({{ user.user_id }}, '{{ user.name }}', '{{ user.email }}', '{{ user.phone_number if user.phone_number else ''}}', '{{ user.role }}')">
+                                        <button class="action-btn btn-edit" onclick='editUser({{ user.user_id|tojson }}, {{ user.name|tojson }}, {{ user.email|tojson }}, {{ (user.phone_number if user.phone_number else "")|tojson }}, {{ user.role|tojson }})'>
                                             <i class="bi bi-pencil-square me-1"></i> Edit
                                         </button>
-                                        <button class="action-btn btn-delete" onclick="deleteUser({{ user.user_id }}, '{{ user.name }}')">
+                                        <button class="action-btn btn-delete" onclick='deleteUser({{ user.user_id|tojson }}, {{ user.name|tojson }})'>
                                             <i class="bi bi-trash me-1"></i> Delete
                                         </button>
                                     </div>
