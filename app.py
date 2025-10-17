@@ -356,6 +356,120 @@ def all_users():
     )
 # -----------------------------------------------------------
 
+@app.route('/admin-dashboard/edit-user', methods=['POST'])
+def edit_user():
+    # Access control
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
+        flash('Access denied!', 'error')
+        return redirect(url_for('login'))
+
+    # Read form data
+    user_id = request.form.get('user_id')
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip()
+    phone_number = request.form.get('phone_number', '').strip()
+    role = request.form.get('role', '').strip()
+
+    # Basic validation
+    if not user_id or not name or not email or not role:
+        flash('Missing required fields.', 'error')
+        return redirect(url_for('all_users'))
+
+    # Normalize and validate role
+    role_map = { 'driver': 'Driver', 'rider': 'Rider', 'admin': 'Admin' }
+    role_normalized = role_map.get(role.lower())
+    if not role_normalized:
+        flash('Invalid role selected.', 'error')
+        return redirect(url_for('all_users'))
+
+    try:
+        user_id_int = int(user_id)
+    except ValueError:
+        flash('Invalid user id.', 'error')
+        return redirect(url_for('all_users'))
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed while updating user!', 'error')
+            return redirect(url_for('all_users'))
+
+        cursor = conn.cursor()
+
+        # Ensure email is unique to this user
+        cursor.execute("SELECT user_id FROM users WHERE email = %s AND user_id != %s", (email, user_id_int))
+        conflict = cursor.fetchone()
+        if conflict:
+            cursor.close()
+            conn.close()
+            flash('Email already in use by another user.', 'error')
+            return redirect(url_for('all_users'))
+
+        # Empty string should become NULL in DB
+        phone_value = phone_number if phone_number else None
+
+        # Perform the update
+        update_sql = (
+            "UPDATE users SET name = %s, email = %s, phone_number = %s, role = %s WHERE user_id = %s"
+        )
+        cursor.execute(update_sql, (name, email, phone_value, role_normalized, user_id_int))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        flash('User updated successfully.', 'success')
+        return redirect(url_for('all_users'))
+
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('all_users'))
+    except Exception as e:
+        flash(f'Unexpected error: {e}', 'error')
+        return redirect(url_for('all_users'))
+
+
+@app.route('/admin-dashboard/delete-user', methods=['POST'])
+def delete_user():
+    # Access control
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
+        flash('Access denied!', 'error')
+        return redirect(url_for('login'))
+
+    user_id = request.form.get('user_id')
+    try:
+        user_id_int = int(user_id)
+    except (TypeError, ValueError):
+        flash('Invalid user id.', 'error')
+        return redirect(url_for('all_users'))
+
+    # Optional: prevent an admin from deleting their own account to avoid lockout
+    if user_id_int == session.get('user_id'):
+        flash('You cannot delete your own account while logged in.', 'error')
+        return redirect(url_for('all_users'))
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed while deleting user!', 'error')
+            return redirect(url_for('all_users'))
+
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id_int,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash('User deleted successfully.', 'success')
+        return redirect(url_for('all_users'))
+
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('all_users'))
+    except Exception as e:
+        flash(f'Unexpected error: {e}', 'error')
+        return redirect(url_for('all_users'))
+
 @app.route('/demo')
 def demo():
     return render_template('demo.html')
