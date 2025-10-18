@@ -3,7 +3,6 @@ import secrets
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-from datetime import datetime, timedelta
 # Initialize the Flask application
 app = Flask(__name__)
 app.secret_key = os.urandom(24) # Change this to a more secure key in production
@@ -42,30 +41,6 @@ def get_db_connection():
     
     return None
 
-# Add this helper function after get_db_connection()
-def update_user_activity(user_id):
-    """Update user's last activity timestamp"""
-    try:
-        conn = get_db_connection()
-        if conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
-                (user_id,)
-            )
-            conn.commit()
-            cursor.close()
-            conn.close()
-    except Exception as e:
-        print(f"Error updating user activity: {e}")
-
-def is_user_online(last_activity):
-    """Check if user is online (active within last 5 minutes)"""
-    if not last_activity:
-        return False
-    # User is considered online if activity within last 5 minutes
-    return (datetime.now() - last_activity).total_seconds() < 300
-
 # --- Security utilities ---
 def get_or_create_csrf_token() -> str:
     """Return a stable CSRF token for the current session, creating one if needed."""
@@ -86,11 +61,13 @@ def login():
         print("🔐 Login attempt")
         print("="*50)
         
+        # Get form data
         email = request.form.get('email')
         password = request.form.get('password')
         
         print(f"📧 Email: {email}")
         
+        # Server-side validation
         if not email or not password:
             print("❌ Validation failed: Missing fields")
             flash('Email and password are required!', 'error')
@@ -105,6 +82,7 @@ def login():
             
             cursor = conn.cursor()
             
+            # Find user by email - Using correct column names
             print(f"🔍 Searching for user with email: {email}")
             cursor.execute("SELECT user_id, name, email, role, password, phone_number FROM users WHERE email = %s", (email,))
             user_tuple = cursor.fetchone()
@@ -117,6 +95,7 @@ def login():
                 flash('Invalid email or password!', 'error')
                 return redirect(url_for('login'))
             
+            # Convert tuple to dictionary
             user = {
                 'user_id': user_tuple[0],
                 'name': user_tuple[1],
@@ -128,6 +107,7 @@ def login():
             
             print(f"✅ User found: {user['name']} (ID: {user['user_id']}, Role: {user['role']})")
             
+            # Verify password
             print("🔒 Verifying password...")
             if check_password_hash(user['password'], password):
                 print(f"✅ Login successful for user: {user['name']}")
@@ -138,14 +118,12 @@ def login():
                 session['user_email'] = user['email']
                 session['user_role'] = user['role']
                 
-                # Update last activity timestamp
-                update_user_activity(user['user_id'])
-                
                 print(f"📦 Session created: user_id={user['user_id']}, role={user['role']}")
                 print("="*50 + "\n")
                 
                 flash(f'Welcome back, {user["name"]}!', 'success')
                 
+                # Redirect based on role (note: your DB has 'Driver' and 'Rider' with capital letters)
                 if user['role'].lower() == 'driver':
                     print(f"🚗 Redirecting to driver dashboard")
                     return redirect(url_for('driver_dashboard'))
@@ -172,29 +150,6 @@ def login():
             return redirect(url_for('login'))
     
     return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    # Clear last activity on logout
-    user_id = session.get('user_id')
-    if user_id:
-        try:
-            conn = get_db_connection()
-            if conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "UPDATE users SET last_activity = NULL WHERE user_id = %s",
-                    (user_id,)
-                )
-                conn.commit()
-                cursor.close()
-                conn.close()
-        except Exception as e:
-            print(f"Error clearing user activity: {e}")
-    
-    session.clear()
-    flash('You have been logged out successfully.', 'success')
-    return redirect(url_for('login'))
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -294,8 +249,8 @@ def signup():
     
     return render_template('signup.html')
 
-
-
+@app.route('/logout')
+def logout():
     session.clear()
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))
@@ -352,62 +307,6 @@ def admin_dashboard():
 # --- NEWLY MODIFIED ROUTE: Fetches All Users from DB ---
 @app.route('/admin-dashboard/all-users')
 def all_users():
-    if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
-        flash('Access denied!', 'error')
-        return redirect(url_for('login'))
-    
-    # Update admin's activity
-    update_user_activity(session['user_id'])
-        
-    user_name = session.get('user_name', 'Guest')
-    user_role = session.get('user_role', 'Unknown')
-    words = user_name.strip().split()
-    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
-    
-    all_users_data = []
-    
-    try:
-        conn = get_db_connection()
-        if not conn:
-            flash('Database connection failed while fetching users!', 'error')
-            return redirect(url_for('admin_dashboard'))
-            
-        cursor = conn.cursor()
-        
-        # Include last_activity in the query
-        query = "SELECT user_id, name, email, phone_number, role, last_activity FROM users"
-        cursor.execute(query)
-        
-        column_names = [i[0] for i in cursor.description]
-        user_records = cursor.fetchall()
-        
-        for record in user_records:
-            user_dict = dict(zip(column_names, record))
-            # Add online status
-            user_dict['is_online'] = is_user_online(user_dict.get('last_activity'))
-            all_users_data.append(user_dict)
-            
-        cursor.close()
-        conn.close()
-        
-    except mysql.connector.Error as err:
-        print(f"❌ Database error fetching users: {err}")
-        flash(f'Database error: {err}', 'error')
-        return redirect(url_for('admin_dashboard'))
-    except Exception as e:
-        print(f"❌ Unexpected error fetching users: {e}")
-        flash(f'An unexpected error occurred: {e}', 'error')
-        return redirect(url_for('admin_dashboard'))
-        
-    csrf_token = get_or_create_csrf_token()
-    return render_template(
-        'all_users.html', 
-        user_name=user_name, 
-        user_role=user_role, 
-        user_avatar=user_avatar,
-        users=all_users_data,
-        csrf_token=csrf_token
-    )
     # 1. Access Control Check (Ensures Admin is logged in)
     if 'user_id' not in session or session.get('user_role', '').lower() != 'admin':
         flash('Access denied!', 'error')
@@ -868,8 +767,6 @@ def delete_car():
 @app.route('/demo')
 def demo():
     return render_template('demo.html')
-
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
