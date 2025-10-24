@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Current Ride - CarPool Rider</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            padding: 20px;
+        }
+        .page-header {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .card-custom {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .status-confirmed {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .route-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .location-icon {
+            font-size: 2rem;
+        }
+        .route-arrow {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+        .info-row {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            flex: 0 0 140px;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .info-value {
+            flex: 1;
+            color: #1e293b;
+        }
+        .driver-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+        .driver-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 900px;">
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-1">My Current Ride</h3>
+                    <p class="text-muted mb-0">Your confirmed ride details</p>
+                </div>
+                <a href="/rider-dashboard" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if ride_data %}
+            <!-- Booking Status -->
+            <div class="card-custom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Booking Status</h5>
+                    <span class="status-confirmed">
+                        <i class="bi bi-check-circle-fill me-1"></i> Confirmed
+                    </span>
+                </div>
+            </div>
+
+            <!-- Route Display -->
+            <div class="route-display">
+                <div class="location-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold fs-5">{{ ride_data.starting_point }}</div>
+                    <div class="small opacity-75">Starting Point</div>
+                </div>
+                <div class="route-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+                <div class="flex-grow-1 text-end">
+                    <div class="fw-bold fs-5">{{ ride_data.destination_point }}</div>
+                    <div class="small opacity-75">Destination</div>
+                </div>
+                <div class="location-icon">
+                    <i class="bi bi-flag-fill"></i>
+                </div>
+            </div>
+
+            <!-- Ride Details -->
+            <div class="card-custom">
+                <h5 class="mb-3"><i class="bi bi-info-circle-fill text-primary me-2"></i>Ride Information</h5>
+                
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="bi bi-calendar3 me-2"></i>Departure
+                    </div>
+                    <div class="info-value">
+                        {{ ride_data.departure_time.strftime('%A, %B %d, %Y at %I:%M %p') if ride_data.departure_time else 'TBD' }}
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="bi bi-cash me-2"></i>Price
+                    </div>
+                    <div class="info-value">
+                        PKR {{ ride_data.price_per_seat }} per seat
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="bi bi-people-fill me-2"></i>Seats Booked
+                    </div>
+                    <div class="info-value">
+                        {{ ride_data.seats_booked }} seat(s)
+                    </div>
+                </div>
+
+                {% if ride_data.car_make %}
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="bi bi-car-front-fill me-2"></i>Vehicle
+                    </div>
+                    <div class="info-value">
+                        {{ ride_data.car_make }} {{ ride_data.car_model }} - {{ ride_data.license_plate }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if ride_data.driver_notes %}
+                <div class="info-row">
+                    <div class="info-label">
+                        <i class="bi bi-chat-left-text me-2"></i>Notes
+                    </div>
+                    <div class="info-value">
+                        {{ ride_data.driver_notes }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Driver Information -->
+            <div class="card-custom">
+                <h5 class="mb-3"><i class="bi bi-person-badge-fill text-primary me-2"></i>Your Driver</h5>
+                <div class="driver-card">
+                    <div class="d-flex gap-3 align-items-center">
+                        <div class="driver-avatar">{{ ride_data.driver_name[0]|upper }}</div>
+                        <div class="flex-grow-1">
+                            <h4 class="mb-1">{{ ride_data.driver_name }}</h4>
+                            <div class="mb-2">
+                                <i class="bi bi-telephone-fill text-primary me-2"></i>
+                                <strong>{{ ride_data.driver_phone if ride_data.driver_phone else 'Not provided' }}</strong>
+                            </div>
+                            <div>
+                                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                                {{ ride_data.driver_email }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    Please contact your driver if you have any questions or need to make changes to your booking.
+                </div>
+            </div>
+
+        {% else %}
+            <div class="card-custom text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <h5 class="text-muted mt-3">No Confirmed Ride</h5>
+                <p class="text-muted">You don't have a confirmed ride at the moment</p>
+                <a href="/rider/all-rides" class="btn btn-primary">
+                    <i class="bi bi-search me-1"></i> Browse Available Rides
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
