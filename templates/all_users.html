@@ -619,6 +619,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editUserForm" method="POST" action="/admin-dashboard/edit-user">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div class="modal-body">
                         <input type="hidden" name="user_id" id="edit_user_id">
                         
@@ -751,8 +752,14 @@
                 input.type = 'hidden';
                 input.name = 'user_id';
                 input.value = id;
-                
+
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = 'csrf_token';
+                csrf.value = '{{ csrf_token }}';
+
                 form.appendChild(input);
+                form.appendChild(csrf);
                 document.body.appendChild(form);
                 form.submit();
             }
