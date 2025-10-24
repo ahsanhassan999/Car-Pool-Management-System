@@ -621,6 +621,7 @@
                 <form id="editUserForm" method="POST" action="/admin-dashboard/edit-user">
                     <div class="modal-body">
                         <input type="hidden" name="user_id" id="edit_user_id">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
@@ -747,12 +748,18 @@
                 form.method = 'POST';
                 form.action = '/admin-dashboard/delete-user';
                 
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'user_id';
-                input.value = id;
+                const userIdInput = document.createElement('input');
+                userIdInput.type = 'hidden';
+                userIdInput.name = 'user_id';
+                userIdInput.value = id;
                 
-                form.appendChild(input);
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrf_token';
+                csrfInput.value = '{{ csrf_token }}';
+                
+                form.appendChild(userIdInput);
+                form.appendChild(csrfInput);
                 document.body.appendChild(form);
                 form.submit();
             }
