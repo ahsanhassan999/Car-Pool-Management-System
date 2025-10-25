@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='components.css') }}">
     
     <style>
         :root {
@@ -277,7 +278,7 @@
                 <i class="bi bi-clock-history"></i>
                 <span>My Bookings</span>
             </a>
-            <a href="#" class="menu-item">
+            <a href="/profile" class="menu-item">
                 <i class="bi bi-person me-2"></i>
                 <span>My Profile</span>
             </a>
@@ -298,49 +299,13 @@
                 <div class="col">
                     <form class="search-form" onsubmit="return false;">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search rides by route, driver, car...">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search rides by location, driver, car..." oninput="filterRides()">
                     </form>
                 </div>
 
                 <!-- Right Side Items -->
                 <div class="col-auto">
                     <div class="d-flex align-items-center gap-3">
-                        <!-- Notifications -->
-                        <div class="dropdown">
-                            <button class="btn btn-link text-decoration-none notification-badge" type="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-bell fs-5 text-secondary"></i>
-                                <span class="badge bg-danger"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
-                                <li><h6 class="dropdown-header">Notifications</h6></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        <div class="d-flex">
-                                            <i class="bi bi-check-circle text-success me-2"></i>
-                                            <div>
-                                                <strong>New Booking</strong>
-                                                <p class="mb-0 small text-muted">John booked your ride to Airport</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        <div class="d-flex">
-                                            <i class="bi bi-chat-dots text-primary me-2"></i>
-                                            <div>
-                                                <strong>New Message</strong>
-                                                <p class="mb-0 small text-muted">Sarah sent you a message</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-center small" href="#">View all notifications</a></li>
-                            </ul>
-                        </div>
-
                         <!-- User Profile -->
                         <div class="dropdown">
                             <div class="user-profile" data-bs-toggle="dropdown">
@@ -352,7 +317,7 @@
                                 <i class="bi bi-chevron-down text-muted"></i>
                             </div>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> My Profile</a></li>
+                                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i> My Profile</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
@@ -366,76 +331,94 @@
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
-      <div class="page-header">
-          <h5 class="mb-0">Welcome back! These are the active rides happening today.</h3>
-      </div>
-      <div class="page-header">
-          <h5 class="mb-8">Hello, welcome back {{user_name}}</h3>
-      </div>
-      <!-- Active Rides List -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <div class="page-header">
+            <h3 class="mb-0">Hello, welcome back {{ user_name }}!</h3>
+            <p class="text-muted mb-0 mt-2">Browse and join available rides</p>
+        </div>
 
-        {% if rides %}
-        <div id="ridesContainer">
-            {% for ride in rides %}
-            <div class="ride-card">
-                <div class="ride-route">
-                    <div class="location-dot start-dot"></div>
-                    <div>
-                        <strong>{{ ride.starting_point }}</strong>
-                    </div>
-                    <div class="route-line"></div>
-                    <div class="location-dot end-dot"></div>
-                    <div>
-                        <strong>{{ ride.destination_point }}</strong>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <span class="info-badge">
-                        <i class="bi bi-person-fill"></i> {{ ride.driver_name }}
-                    </span>
-                    <span class="info-badge">
-                        <i class="bi bi-calendar3"></i> {{ ride.departure_time.strftime('%b %d, %Y %I:%M %p') if ride.departure_time else 'TBD' }}
-                    </span>
-                    <span class="info-badge">
-                        <i class="bi bi-people-fill"></i> {{ ride.available_seats }} / {{ ride.total_seats }} seats
-                    </span>
-                    {% if ride.car_make %}
-                    <span class="info-badge">
-                        <i class="bi bi-car-front-fill"></i> {{ ride.car_make }} {{ ride.car_model }}
-                    </span>
-                    {% endif %}
-                    <span class="info-badge price-tag">
-                        <i class="bi bi-cash"></i> PKR {{ ride.price_per_seat }} / seat
-                    </span>
-                </div>
-
-                {% if ride.driver_notes %}
-                <div class="alert alert-light mb-3">
-                    <i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> {{ ride.driver_notes }}
-                </div>
+        <!-- Your dashboard content goes here -->
+        <div class="col-auto">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
                 {% endif %}
+            {% endwith %}
 
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted small"></div>
-                    <form method="POST" action="/rider/request-ride/{{ ride.ride_id }}">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle me-1"></i> Request to Join
-                        </button>
-                    </form>
-                </div>
+            <div id="ridesContainer">
+                {% if rides %}
+                    {% for ride in rides %}
+                    <div class="ride-card" data-search="{{ ride.starting_point|lower }} {{ ride.destination_point|lower }} {{ ride.driver_name|lower }} {{ ride.car_make|lower if ride.car_make else '' }} {{ ride.car_model|lower if ride.car_model else '' }}">
+                        <div class="ride-route">
+                            <div class="location-dot start-dot"></div>
+                            <div>
+                                <strong>{{ ride.starting_point }}</strong>
+                            </div>
+                            <div class="route-line"></div>
+                            <div class="location-dot end-dot"></div>
+                            <div>
+                                <strong>{{ ride.destination_point }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="info-badge">
+                                <i class="bi bi-person-fill"></i> {{ ride.driver_name }}
+                            </span>
+                            <span class="info-badge">
+                                <i class="bi bi-calendar3"></i> {{ ride.departure_time.strftime('%b %d, %Y %I:%M %p') if ride.departure_time else 'TBD' }}
+                            </span>
+                            <span class="info-badge">
+                                <i class="bi bi-people-fill"></i> {{ ride.available_seats }} / {{ ride.total_seats }} seats
+                            </span>
+                            {% if ride.car_make %}
+                            <span class="info-badge">
+                                <i class="bi bi-car-front-fill"></i> {{ ride.car_make }} {{ ride.car_model }}
+                            </span>
+                            {% endif %}
+                            <span class="info-badge price-tag">
+                                <i class="bi bi-cash"></i> PKR {{ ride.price_per_seat }} / seat
+                            </span>
+                        </div>
+
+                        {% if ride.driver_notes %}
+                        <div class="alert alert-light mb-3">
+                            <i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> {{ ride.driver_notes }}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="bi bi-telephone-fill"></i> {{ ride.driver_phone if ride.driver_phone else 'Not provided' }}
+                                </small>
+                            </div>
+                            <form action="{{ url_for('rider_request_ride', ride_id=ride.ride_id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-join-ride">
+                                    <i class="bi bi-plus-circle me-1"></i> Request to Join
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="ride-card text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <h5 class="text-muted mt-3">No Active Rides Available</h5>
+                        <p class="text-muted">Check back later for new rides</p>
+                    </div>
+                {% endif %}
             </div>
-            {% endfor %}
+            
+            <div id="noResults" class="no-results" style="display: none;">
+                <i class="bi bi-search fs-1"></i>
+                <h5 class="mt-3">No rides match your search</h5>
+                <p class="text-muted">Try adjusting your search terms</p>
+            </div>
         </div>
         {% else %}
             <div class="ride-card text-center py-5">
@@ -520,6 +503,31 @@
                 icon.classList.add(sidebar.classList.contains('mobile-open') ? 'bi-x' : 'bi-list');
             }
         });
+
+        // Search functionality
+        function filterRides() {
+            const searchInput = document.getElementById('searchInput');
+            const filter = searchInput.value.toLowerCase();
+            const rideCards = document.querySelectorAll('.ride-card[data-search]');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+
+            rideCards.forEach(card => {
+                const searchText = card.getAttribute('data-search');
+                if (searchText.includes(filter)) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            if (visibleCount === 0 && filter !== '') {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
     </script>
     <script>
         // Client-side search filter for ride cards

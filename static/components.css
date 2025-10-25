@@ -5,3 +5,98 @@
             background-color: #f7f7f7;
             color: #1f2937;
         }
+
+        /* Ride Cards Styling */
+        .ride-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .ride-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .ride-route {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .location-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .start-dot {
+            background-color: #10b981;
+        }
+
+        .end-dot {
+            background-color: #ef4444;
+        }
+
+        .route-line {
+            flex-grow: 1;
+            height: 2px;
+            background: linear-gradient(to right, #10b981, #ef4444);
+            position: relative;
+        }
+
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .price-tag {
+            background-color: #dcfce7;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .btn-join-ride {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #ffffff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-join-ride:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+        }
+
+        .btn-join-ride:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        /* Search functionality */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .ride-card.hidden {
+            display: none;
+        }

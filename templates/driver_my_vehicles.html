@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Ride - CarPool</title>
+    <title>My Vehicles - CarPool</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -13,9 +13,11 @@
     <style>
         :root { --sidebar-width: 250px; --navbar-height: 60px; --primary-color: #6366f1; --sidebar-bg: #1e293b; --sidebar-hover: #334155; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f8fafc; }
+        
         /* Top Navbar */
         .top-navbar { height: var(--navbar-height); background: #fff; border-bottom: 1px solid #e2e8f0; position: fixed; top: 0; left: var(--sidebar-width); right: 0; z-index: 1000; transition: left 0.3s ease; }
         .top-navbar.sidebar-collapsed { left: 70px; }
+        
         /* Sidebar */
         .sidebar { width: var(--sidebar-width); background: var(--sidebar-bg); position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; transition: width 0.3s ease; z-index: 1001; }
         .sidebar.collapsed { width: 70px; }
@@ -28,17 +30,40 @@
         .menu-item:hover { background: var(--sidebar-hover); color: #fff; }
         .menu-item.active { background: var(--primary-color); color: #fff; }
         .sidebar.collapsed .menu-item span { display: none; }
+        
         /* Main Content */
         .main-content { margin-left: var(--sidebar-width); margin-top: var(--navbar-height); padding: 30px; transition: margin-left 0.3s ease; }
         .main-content.sidebar-collapsed { margin-left: 70px; }
+        
         /* Toggle Button */
         .sidebar-toggle { background: none; border: none; color: #64748b; font-size: 1.25rem; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s; }
         .sidebar-toggle:hover { background: #f1f5f9; color: var(--primary-color); }
+        
+        /* User Profile */
+        .user-profile { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: background 0.3s; }
+        .user-profile:hover { background: #f1f5f9; }
+        .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; }
+        
         /* Page styles */
-        .form-container { max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 30px; }
-        .form-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
+        .page-header { background: #ffffff; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-container { background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 30px; }
+        .form-header { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; }
         .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color);} 
         .btn-primary:hover { background-color: #4f46e5; border-color: #4f46e5; }
+        
+        /* Vehicle Cards */
+        .vehicle-card { background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.3s ease; border-left: 4px solid var(--primary-color); }
+        .vehicle-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-2px); }
+        .vehicle-info { display: flex; align-items: center; gap: 15px; }
+        .vehicle-icon { width: 50px; height: 50px; border-radius: 10px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.5rem; }
+        .info-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background-color: #f1f5f9; border-radius: 6px; font-size: 0.875rem; margin-right: 8px; margin-top: 8px; }
+        
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .top-navbar { left: 0; }
+            .main-content { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
@@ -54,7 +79,7 @@
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="/driver/create-ride" class="menu-item active">
+            <a href="/driver/create-ride" class="menu-item">
                 <i class="bi bi-plus-circle-fill"></i>
                 <span>Create Ride</span>
             </a>
@@ -62,12 +87,12 @@
                 <i class="bi bi-geo-alt-fill"></i>
                 <span>My Active Ride</span>
             </a>
-            <a href="/driver/my-vehicles" class="menu-item">
+            <a href="/driver/my-vehicles" class="menu-item active">
                 <i class="bi bi-car-front-fill"></i>
                 <span>My Vehicles</span>
             </a>
             <a href="/profile" class="menu-item">
-                <i class="bi bi-person me-2"></i>
+                <i class="bi bi-person"></i>
                 <span>My Profile</span>
             </a>
         </div>
@@ -87,8 +112,8 @@
                     <div class="d-flex align-items-center gap-3">
                         <!-- User Profile -->
                         <div class="dropdown">
-                            <div class="user-profile d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                                <div class="user-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--primary-color);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;">{{user_avatar}}</div>
+                            <div class="user-profile" data-bs-toggle="dropdown">
+                                <div class="user-avatar">{{user_avatar}}</div>
                                 <div class="d-none d-md-block">
                                     <div class="fw-semibold">{{user_name}}</div>
                                     <div class="small text-muted">{{user_role}}</div>
@@ -110,60 +135,100 @@
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
+        <div class="page-header">
+            <h3 class="mb-0"><i class="bi bi-car-front-fill text-primary me-2"></i>My Vehicles</h3>
+            <p class="text-muted mb-0 mt-2">Manage your vehicles for carpooling</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Add Vehicle Form -->
         <div class="form-container">
             <div class="form-header">
-                <h2><i class="bi bi-plus-circle-fill text-primary me-2"></i>Create New Ride</h2>
-                <p class="text-muted mb-0">Share your ride and earn while you travel</p>
+                <h5><i class="bi bi-plus-circle me-2"></i>Add New Vehicle</h5>
             </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            <form method="POST" action="/driver/create-ride">
+            <form method="POST" action="/driver/my-vehicles">
                 <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label fw-semibold">Select Your Car <span class="text-danger">*</span></label>
-                        <select class="form-select" name="car_id" required>
-                            <option value="">Choose a car...</option>
-                            {% for car in cars %}
-                                <option value="{{ car.car_id }}">{{ car.make }} {{ car.model }} - {{ car.license_plate }} ({{ car.seats }} seats)</option>
-                            {% endfor %}
-                        </select>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Make <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="make" placeholder="e.g., Toyota, Honda, Suzuki" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Starting Point <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="starting_point" placeholder="e.g., Johar Block 17" required>
+                        <label class="form-label fw-semibold">Model <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="model" placeholder="e.g., Corolla, Civic, Cultus" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Destination <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="destination_point" placeholder="e.g., Defence Phase 8" required>
+                        <label class="form-label fw-semibold">License Plate <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="license_plate" placeholder="e.g., ABC-123" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Departure Time <span class="text-danger">*</span></label>
-                        <input type="datetime-local" class="form-control" name="departure_time" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Price Per Seat (PKR) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" name="price" placeholder="e.g., 250" min="0" step="0.01" required>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label fw-semibold">Additional Notes (Optional)</label>
-                        <textarea class="form-control" name="notes" rows="3" placeholder="Any special instructions or preferences..."></textarea>
+                        <label class="form-label fw-semibold">Total Seats <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" name="seats" placeholder="e.g., 5" min="2" max="20" required>
+                        <small class="text-muted">Total seats including driver</small>
                     </div>
                 </div>
                 <div class="d-flex gap-2 justify-content-end">
-                    <a href="/driver-dashboard" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i> Cancel</a>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i> Create Ride</button>
+                    <button type="reset" class="btn btn-secondary"><i class="bi bi-x-circle me-1"></i> Clear</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Add Vehicle</button>
                 </div>
             </form>
+        </div>
+
+        <!-- Vehicles List -->
+        <div class="form-container">
+            <div class="form-header">
+                <h5><i class="bi bi-list-ul me-2"></i>Your Vehicles ({{ vehicles|length }})</h5>
+            </div>
+
+            {% if vehicles %}
+                <div class="row">
+                    {% for vehicle in vehicles %}
+                    <div class="col-md-6">
+                        <div class="vehicle-card">
+                            <div class="vehicle-info">
+                                <div class="vehicle-icon">
+                                    <i class="bi bi-car-front-fill"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ vehicle.make }} {{ vehicle.model }}</h6>
+                                    <div>
+                                        <span class="info-badge">
+                                            <i class="bi bi-credit-card-2-front"></i> {{ vehicle.license_plate }}
+                                        </span>
+                                        <span class="info-badge">
+                                            <i class="bi bi-people-fill"></i> {{ vehicle.seats }} seats
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <form method="POST" action="/driver/delete-vehicle/{{ vehicle.car_id }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-car-front fs-1 text-muted"></i>
+                    <h5 class="text-muted mt-3">No Vehicles Added</h5>
+                    <p class="text-muted">Add your first vehicle using the form above to start creating rides</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -174,6 +239,7 @@
         const topNavbar = document.getElementById('topNavbar');
         const mainContent = document.getElementById('mainContent');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        
         sidebarToggle.addEventListener('click', () => {
             if (window.innerWidth > 768) {
                 sidebar.classList.toggle('collapsed');
@@ -183,6 +249,7 @@
                 sidebar.classList.toggle('mobile-open');
             }
         });
+        
         document.addEventListener('click', (e) => {
             if (window.innerWidth <= 768) {
                 if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
@@ -190,6 +257,7 @@
                 }
             }
         });
+        
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('mobile-open');
