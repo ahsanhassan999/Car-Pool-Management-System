@@ -17,6 +17,10 @@
             --primary-color: #6366f1;
             --sidebar-bg: #1e293b;
             --sidebar-hover: #334155;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --text: #1e293b;
+            --muted: #64748b;
         }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -44,18 +48,43 @@
         .sidebar-toggle:hover { background:#f1f5f9; color: var(--primary-color); }
         @media (max-width:768px){ .sidebar{ transform: translateX(-100%);} .sidebar.mobile-open{ transform: translateX(0);} .top-navbar{ left:0;} .main-content{ margin-left:0;} }
         /* Page */
-        .page-header { background:#fff; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);} 
-        .card-custom { background:#ffffff; border-radius:12px; padding:25px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);} 
+        .page-header { background: var(--surface); padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);} 
+        .card-custom { background: var(--surface); border-radius:12px; padding:25px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);} 
         .status-confirmed { display:inline-block; padding:6px 16px; background:#dcfce7; color:#166534; border-radius:20px; font-weight:600; font-size:0.875rem; }
         .route-display { display:flex; align-items:center; gap:15px; padding:20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white; margin-bottom:20px; }
         .location-icon { font-size:2rem; }
         .route-arrow { font-size:2rem; opacity:0.7; }
-        .info-row { display:flex; padding:15px; border-bottom:1px solid #e2e8f0; }
+        .info-row { display:flex; align-items:flex-start; gap:12px; padding:15px; border-bottom:1px solid #e2e8f0; }
         .info-row:last-child { border-bottom:none; }
-        .info-label { flex:0 0 140px; font-weight:600; color:#64748b; }
-        .info-value { flex:1; color:#1e293b; }
-        .driver-card { background:#f8fafc; padding:20px; border-radius:12px; border:2px solid #e2e8f0; }
+        .info-label { flex:0 0 160px; font-weight:600; color:var(--muted); }
+        .info-value { flex:1; color:var(--text); }
+        .driver-card { background:var(--surface-alt); padding:20px; border-radius:12px; border:2px solid #e2e8f0; }
         .driver-avatar { width:80px; height:80px; border-radius:50%; background: var(--primary-color); display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:2rem; }
+
+        /* Buttons */
+        .btn-responsive { white-space: nowrap; }
+        .contact-actions { display:flex; flex-wrap: wrap; gap:10px; }
+        .contact-actions .btn { flex: 1 1 auto; }
+
+        /* Mobile tweaks */
+        @media (max-width: 768px){ 
+            .sidebar{ transform: translateX(-100%);} 
+            .sidebar.mobile-open{ transform: translateX(0);} 
+            .top-navbar{ left:0;} 
+            .main-content{ margin-left:0; padding: 20px;}
+        }
+        @media (max-width: 576px){
+            .page-header h3 { font-size: clamp(1.1rem, 2.5vw, 1.25rem); }
+            .route-display { flex-direction: column; align-items: stretch; text-align:center; gap:10px; }
+            .route-arrow, .location-icon { display:none; }
+            .info-row { flex-direction: column; gap:6px; padding:12px 0; }
+            .info-label { flex: none; font-size: 0.95rem; }
+            .info-value { font-size: 1rem; }
+            .page-header .d-flex { flex-direction: column; align-items: stretch !important; gap: 12px; }
+            .btn-responsive { width: 100%; }
+            .contact-actions { flex-direction: column; }
+            .contact-actions .btn { width:100%; }
+        }
     </style>
 </head>
 <body>
@@ -133,7 +162,7 @@
                     <h3 class="mb-1">My Current Ride</h3>
                     <p class="text-muted mb-0">Your confirmed ride details</p>
                 </div>
-                <a href="/rider-dashboard" class="btn btn-outline-secondary">
+                <a href="/rider-dashboard" class="btn btn-outline-secondary btn-responsive">
                     <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
                 </a>
             </div>
@@ -221,6 +250,20 @@
                             <h4 class="mb-1">{{ ride_data.driver_name }}</h4>
                             <div class="mb-2"><i class="bi bi-telephone-fill text-primary me-2"></i><strong>{{ ride_data.driver_phone if ride_data.driver_phone else 'Not provided' }}</strong></div>
                             <div><i class="bi bi-envelope-fill text-primary me-2"></i>{{ ride_data.driver_email }}</div>
+                            <div class="contact-actions mt-3">
+                                {% if ride_data.driver_phone %}
+                                <a href="tel:{{ ride_data.driver_phone }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-telephone-outbound me-1"></i> Call Driver
+                                </a>
+                                {% else %}
+                                <button class="btn btn-outline-secondary btn-sm" disabled>
+                                    <i class="bi bi-telephone me-1"></i> Phone Unavailable
+                                </button>
+                                {% endif %}
+                                <a href="mailto:{{ ride_data.driver_email }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-envelope me-1"></i> Email Driver
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -234,7 +277,7 @@
                 <i class="bi bi-inbox fs-1 text-muted"></i>
                 <h5 class="text-muted mt-3">No Confirmed Ride</h5>
                 <p class="text-muted">You don't have a confirmed ride at the moment</p>
-                <a href="/rider/all-rides" class="btn btn-primary">
+                <a href="/rider/all-rides" class="btn btn-primary btn-responsive">
                     <i class="bi bi-search me-1"></i> Browse Available Rides
                 </a>
             </div>
