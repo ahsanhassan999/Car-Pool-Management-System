@@ -293,10 +293,19 @@ def rider_dashboard():
         flash('Access denied!', 'error')
         return redirect(url_for('login'))
     
+    success, message, rides = get_all_active_rides()
+    
+    if not success:
+        flash(message, 'error')
+        rides = []
+
     user_name = session.get('user_name', 'Guest')
     user_role = session.get('user_role', 'Unknown')
     
-    return render_template('rider_dashboard.html', user_name=user_name, user_role=user_role)
+    return render_template('rider_dashboard.html', 
+                           user_name=user_name, 
+                           user_role=user_role, 
+                           rides=rides if rides else [])
 
 @app.route('/admin-dashboard')
 def admin_dashboard():
@@ -307,6 +316,12 @@ def admin_dashboard():
     if session.get('user_role', '').lower() != 'admin':
         flash('Access denied!', 'error')
         return redirect(url_for('login'))
+    
+    success, message, rides = get_all_active_rides()
+    
+    if not success:
+        flash(message, 'error')
+        rides = []
         
     user_name = session.get('user_name', 'Guest')
     user_role = session.get('user_role', 'Unknown')
@@ -315,7 +330,11 @@ def admin_dashboard():
     words = user_name.strip().split()
     user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
 
-    return render_template('admin_dashboard.html', user_name=user_name, user_role=user_role, user_avatar=user_avatar)
+    return render_template('admin_dashboard.html', 
+                           user_name=user_name, 
+                           user_role=user_role, 
+                           user_avatar=user_avatar,
+                           rides=rides if rides else [])
     
 # --- NEWLY MODIFIED ROUTE: Fetches All Users from DB ---
 @app.route('/admin-dashboard/all-users')
