@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Vehicles - CarPool</title>
+    <title>My Profile - CarPool</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -51,12 +51,10 @@
         .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color);} 
         .btn-primary:hover { background-color: #4f46e5; border-color: #4f46e5; }
         
-        /* Vehicle Cards */
-        .vehicle-card { background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.3s ease; border-left: 4px solid var(--primary-color); }
-        .vehicle-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-2px); }
-        .vehicle-info { display: flex; align-items: center; gap: 15px; }
-        .vehicle-icon { width: 50px; height: 50px; border-radius: 10px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.5rem; }
-        .info-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background-color: #f1f5f9; border-radius: 6px; font-size: 0.875rem; margin-right: 8px; margin-top: 8px; }
+        /* Profile Avatar */
+        .profile-avatar-large { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 600; margin: 0 auto 20px; }
+        .profile-info-card { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; text-align: center; }
+        .badge-role { background: rgba(255,255,255,0.2); padding: 6px 15px; border-radius: 20px; display: inline-block; margin-top: 10px; }
         
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); }
@@ -70,28 +68,60 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <a href="/driver-dashboard" class="sidebar-brand text-decoration-none">
+        <a href="{% if user_role|lower == 'driver' %}/driver-dashboard{% elif user_role|lower == 'rider' %}/rider-dashboard{% elif user_role|lower == 'admin' %}/admin-dashboard{% else %}/#{% endif %}" class="sidebar-brand text-decoration-none">
             <i class="bi bi-car-front-fill"></i>
             <span>CarPool</span>
         </a>
         <div class="sidebar-menu">
-            <a href="/driver-dashboard" class="menu-item">
-                <i class="bi bi-speedometer2"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="/driver/create-ride" class="menu-item">
-                <i class="bi bi-plus-circle-fill"></i>
-                <span>Create Ride</span>
-            </a>
-            <a href="/driver/my-ride" class="menu-item">
-                <i class="bi bi-geo-alt-fill"></i>
-                <span>My Active Ride</span>
-            </a>
-            <a href="/driver/my-vehicles" class="menu-item active">
-                <i class="bi bi-car-front-fill"></i>
-                <span>My Vehicles</span>
-            </a>
-            <a href="/profile" class="menu-item">
+            {% if user_role|lower == 'driver' %}
+                <a href="/driver-dashboard" class="menu-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/driver/create-ride" class="menu-item">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    <span>Create Ride</span>
+                </a>
+                <a href="/driver/my-ride" class="menu-item">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>My Active Ride</span>
+                </a>
+                <a href="/driver/my-vehicles" class="menu-item">
+                    <i class="bi bi-car-front-fill"></i>
+                    <span>My Vehicles</span>
+                </a>
+            {% elif user_role|lower == 'rider' %}
+                <a href="/rider-dashboard" class="menu-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/rider/all-rides" class="menu-item">
+                    <i class="bi bi-car-front-fill"></i>
+                    <span>Browse Rides</span>
+                </a>
+                <a href="/rider/my-ride" class="menu-item">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>My Current Ride</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="bi bi-clock-history"></i>
+                    <span>My Bookings</span>
+                </a>
+            {% elif user_role|lower == 'admin' %}
+                <a href="/admin-dashboard" class="menu-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin-dashboard/all-users" class="menu-item">
+                    <i class="bi bi-people-fill"></i>
+                    <span>All Users</span>
+                </a>
+                <a href="/admin-dashboard/all-cars" class="menu-item">
+                    <i class="bi bi-car-front-fill"></i>
+                    <span>All Cars</span>
+                </a>
+            {% endif %}
+            <a href="/profile" class="menu-item active">
                 <i class="bi bi-person"></i>
                 <span>My Profile</span>
             </a>
@@ -136,8 +166,8 @@
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="page-header">
-            <h3 class="mb-0"><i class="bi bi-car-front-fill text-primary me-2"></i>My Vehicles</h3>
-            <p class="text-muted mb-0 mt-2">Manage your vehicles for carpooling</p>
+            <h3 class="mb-0"><i class="bi bi-person-circle text-primary me-2"></i>My Profile</h3>
+            <p class="text-muted mb-0 mt-2">Manage your account information</p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -151,84 +181,80 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Add Vehicle Form -->
+        <!-- Profile Info Card -->
+        <div class="profile-info-card">
+            <div class="profile-avatar-large">{{user_avatar}}</div>
+            <h4 class="mb-2">{{user_name}}</h4>
+            <p class="mb-2">{{user_email}}</p>
+            <span class="badge-role">
+                <i class="bi bi-person-badge me-1"></i>{{user_role}}
+            </span>
+        </div>
+
+        <!-- Edit Profile Form -->
         <div class="form-container">
             <div class="form-header">
-                <h5><i class="bi bi-plus-circle me-2"></i>Add New Vehicle</h5>
+                <h5><i class="bi bi-pencil-square me-2"></i>Edit Profile Information</h5>
             </div>
 
-            <form method="POST" action="/driver/my-vehicles">
+            <form method="POST" action="/profile">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Make <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="make" placeholder="e.g., Toyota, Honda, Suzuki" required>
+                        <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" value="{{user_name}}" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Model <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="model" placeholder="e.g., Corolla, Civic, Cultus" required>
+                        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="email" value="{{user_email}}" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">License Plate <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="license_plate" placeholder="e.g., ABC-123" required>
+                        <label class="form-label fw-semibold">Phone Number</label>
+                        <input type="text" class="form-control" name="phone_number" value="{{user_phone if user_phone else ''}}" placeholder="e.g., +92 300 1234567">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Total Seats <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" name="seats" placeholder="e.g., 5" min="2" max="20" required>
-                        <small class="text-muted">Total seats including driver</small>
+                        <label class="form-label fw-semibold">Role</label>
+                        <input type="text" class="form-control" value="{{user_role}}" readonly disabled>
+                        <small class="text-muted">Role cannot be changed</small>
                     </div>
                 </div>
                 <div class="d-flex gap-2 justify-content-end">
-                    <button type="reset" class="btn btn-secondary"><i class="bi bi-x-circle me-1"></i> Clear</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Add Vehicle</button>
+                    <a href="{% if user_role|lower == 'driver' %}/driver-dashboard{% elif user_role|lower == 'rider' %}/rider-dashboard{% elif user_role|lower == 'admin' %}/admin-dashboard{% else %}/#{% endif %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i> Save Changes
+                    </button>
                 </div>
             </form>
         </div>
 
-        <!-- Vehicles List -->
+        <!-- Change Password Form -->
         <div class="form-container">
             <div class="form-header">
-                <h5><i class="bi bi-list-ul me-2"></i>Your Vehicles ({{ vehicles|length }})</h5>
+                <h5><i class="bi bi-lock-fill me-2"></i>Change Password</h5>
             </div>
 
-            {% if vehicles %}
+            <form method="POST" action="/profile/change-password" id="passwordForm">
                 <div class="row">
-                    {% for vehicle in vehicles %}
-                    <div class="col-md-6">
-                        <div class="vehicle-card">
-                            <div class="vehicle-info">
-                                <div class="vehicle-icon">
-                                    <i class="bi bi-car-front-fill"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ vehicle.make }} {{ vehicle.model }}</h6>
-                                    <div>
-                                        <span class="info-badge">
-                                            <i class="bi bi-credit-card-2-front"></i> {{ vehicle.license_plate }}
-                                        </span>
-                                        <span class="info-badge">
-                                            <i class="bi bi-people-fill"></i> {{ vehicle.seats }} seats
-                                        </span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <form method="POST" action="/driver/delete-vehicle/{{ vehicle.car_id }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-semibold">Current Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" name="current_password" id="current_password" required>
                     </div>
-                    {% endfor %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">New Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" name="new_password" id="new_password" minlength="6" required>
+                        <small class="text-muted">At least 6 characters</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Confirm New Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" name="confirm_password" id="confirm_password" minlength="6" required>
+                    </div>
                 </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-car-front fs-1 text-muted"></i>
-                    <h5 class="text-muted mt-3">No Vehicles Added</h5>
-                    <p class="text-muted">Add your first vehicle using the form above to start creating rides</p>
+                <div class="d-flex gap-2 justify-content-end">
+                    <button type="reset" class="btn btn-secondary"><i class="bi bi-x-circle me-1"></i> Clear</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-shield-lock me-1"></i> Update Password</button>
                 </div>
-            {% endif %}
+            </form>
         </div>
     </div>
 
@@ -261,6 +287,17 @@
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Password validation
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('New passwords do not match!');
             }
         });
     </script>

@@ -259,6 +259,163 @@ def logout():
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))
 
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user_id' not in session:
+        flash('Please login first!', 'error')
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    user_name = session.get('user_name', 'Guest')
+    user_role = session.get('user_role', 'Unknown')
+    user_email = session.get('user_email', '')
+    
+    # Generate user avatar
+    words = user_name.strip().split()
+    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
+    
+    if request.method == 'POST':
+        # Handle profile update
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone_number = request.form.get('phone_number', '').strip()
+        
+        # Validation
+        if not name or not email:
+            flash('Name and email are required!', 'error')
+            return redirect(url_for('profile'))
+        
+        try:
+            conn = get_db_connection()
+            if not conn:
+                flash('Database connection failed!', 'error')
+                return redirect(url_for('profile'))
+            
+            cursor = conn.cursor()
+            
+            # Check if email is already used by another user
+            cursor.execute("SELECT user_id FROM users WHERE email = %s AND user_id != %s", (email, user_id))
+            existing_user = cursor.fetchone()
+            
+            if existing_user:
+                cursor.close()
+                conn.close()
+                flash('Email is already in use by another user!', 'error')
+                return redirect(url_for('profile'))
+            
+            # Update user information
+            phone_value = phone_number if phone_number else None
+            update_query = "UPDATE users SET name = %s, email = %s, phone_number = %s WHERE user_id = %s"
+            cursor.execute(update_query, (name, email, phone_value, user_id))
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+            
+            # Update session
+            session['user_name'] = name
+            session['user_email'] = email
+            
+            flash('Profile updated successfully!', 'success')
+            return redirect(url_for('profile'))
+            
+        except mysql.connector.Error as err:
+            flash(f'Database error: {err}', 'error')
+            return redirect(url_for('profile'))
+        except Exception as e:
+            flash(f'An error occurred: {e}', 'error')
+            return redirect(url_for('profile'))
+    
+    # GET: Fetch user phone number
+    try:
+        conn = get_db_connection()
+        if not conn:
+            user_phone = None
+        else:
+            cursor = conn.cursor()
+            cursor.execute("SELECT phone_number FROM users WHERE user_id = %s", (user_id,))
+            result = cursor.fetchone()
+            user_phone = result[0] if result else None
+            cursor.close()
+            conn.close()
+    except Exception:
+        user_phone = None
+    
+    return render_template('profile.html',
+                         user_name=user_name,
+                         user_role=user_role,
+                         user_email=user_email,
+                         user_phone=user_phone,
+                         user_avatar=user_avatar)
+
+@app.route('/profile/change-password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        flash('Please login first!', 'error')
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    current_password = request.form.get('current_password', '').strip()
+    new_password = request.form.get('new_password', '').strip()
+    confirm_password = request.form.get('confirm_password', '').strip()
+    
+    # Validation
+    if not all([current_password, new_password, confirm_password]):
+        flash('All password fields are required!', 'error')
+        return redirect(url_for('profile'))
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match!', 'error')
+        return redirect(url_for('profile'))
+    
+    if len(new_password) < 6:
+        flash('New password must be at least 6 characters!', 'error')
+        return redirect(url_for('profile'))
+    
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed!', 'error')
+            return redirect(url_for('profile'))
+        
+        cursor = conn.cursor()
+        
+        # Verify current password
+        cursor.execute("SELECT password FROM users WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+        
+        if not result:
+            cursor.close()
+            conn.close()
+            flash('User not found!', 'error')
+            return redirect(url_for('profile'))
+        
+        stored_password = result[0]
+        
+        if not check_password_hash(stored_password, current_password):
+            cursor.close()
+            conn.close()
+            flash('Current password is incorrect!', 'error')
+            return redirect(url_for('profile'))
+        
+        # Update password
+        hashed_new_password = generate_password_hash(new_password)
+        cursor.execute("UPDATE users SET password = %s WHERE user_id = %s", (hashed_new_password, user_id))
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        flash('Password changed successfully!', 'success')
+        return redirect(url_for('profile'))
+        
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('profile'))
+    except Exception as e:
+        flash(f'An error occurred: {e}', 'error')
+        return redirect(url_for('profile'))
+
 @app.route('/driver-dashboard')
 def driver_dashboard():
     if 'user_id' not in session:
@@ -1474,6 +1631,66 @@ def driver_my_vehicles():
     except Exception as e:
         flash(f'Error: {e}', 'error')
         return redirect(url_for('driver_dashboard'))
+
+
+@app.route('/driver/delete-vehicle/<int:car_id>', methods=['POST'])
+def driver_delete_vehicle(car_id):
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
+        flash('Access denied! Drivers only.', 'error')
+        return redirect(url_for('login'))
+    
+    driver_id = session['user_id']
+    
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed!', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        
+        cursor = conn.cursor()
+        
+        # Verify the vehicle belongs to the driver
+        cursor.execute("SELECT user_id FROM cars WHERE car_id = %s", (car_id,))
+        car_data = cursor.fetchone()
+        
+        if not car_data:
+            cursor.close()
+            conn.close()
+            flash('Vehicle not found!', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        
+        if car_data[0] != driver_id:
+            cursor.close()
+            conn.close()
+            flash('You can only delete your own vehicles!', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        
+        # Check if vehicle is being used in any active rides
+        cursor.execute("SELECT ride_id FROM rides WHERE car_id = %s AND is_active = TRUE", (car_id,))
+        active_ride = cursor.fetchone()
+        
+        if active_ride:
+            cursor.close()
+            conn.close()
+            flash('Cannot delete vehicle! It is currently being used in an active ride.', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        
+        # Delete the vehicle
+        cursor.execute("DELETE FROM cars WHERE car_id = %s", (car_id,))
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        flash('Vehicle deleted successfully!', 'success')
+        return redirect(url_for('driver_my_vehicles'))
+        
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+        return redirect(url_for('driver_my_vehicles'))
+    except Exception as e:
+        flash(f'An error occurred: {e}', 'error')
+        return redirect(url_for('driver_my_vehicles'))
 
 
 @app.route('/driver/create-ride', methods=['GET', 'POST'])
