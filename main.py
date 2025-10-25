@@ -1580,5 +1580,106 @@ def driver_end_ride(ride_id):
     return redirect(url_for('driver_dashboard'))
 
 
+@app.route('/driver/my-vehicles', methods=['GET', 'POST'])
+def driver_my_vehicles():
+    """Driver page to view and add their vehicles."""
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
+        flash('Access denied! Drivers only.', 'error')
+        return redirect(url_for('login'))
+
+    driver_id = session['user_id']
+
+    # Handle add vehicle form submission
+    if request.method == 'POST':
+        make = (request.form.get('make') or '').strip()
+        model = (request.form.get('model') or '').strip()
+        license_plate = (request.form.get('license_plate') or '').strip()
+        seats = (request.form.get('seats') or '').strip()
+
+        if not all([make, model, license_plate, seats]):
+            flash('All fields are required.', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+
+        try:
+            seats_int = int(seats)
+            if seats_int <= 0:
+                raise ValueError('Seats must be positive')
+        except (TypeError, ValueError):
+            flash('Seats must be a positive number.', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+
+        try:
+            conn = get_db_connection()
+            if not conn:
+                flash('Database connection failed!', 'error')
+                return redirect(url_for('driver_my_vehicles'))
+
+            cursor = conn.cursor()
+
+            # Ensure license plate is unique
+            cursor.execute("SELECT car_id FROM cars WHERE license_plate = %s", (license_plate,))
+            if cursor.fetchone():
+                cursor.close()
+                conn.close()
+                flash('License plate already registered to another car.', 'error')
+                return redirect(url_for('driver_my_vehicles'))
+
+            insert_sql = (
+                "INSERT INTO cars (user_id, make, model, license_plate, seats) VALUES (%s, %s, %s, %s, %s)"
+            )
+            cursor.execute(insert_sql, (driver_id, make, model, license_plate, seats_int))
+            conn.commit()
+
+            cursor.close()
+            conn.close()
+
+            flash('Vehicle added successfully.', 'success')
+            return redirect(url_for('driver_my_vehicles'))
+
+        except mysql.connector.Error as err:
+            flash(f'Database error: {err}', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        except Exception as e:
+            flash(f'Unexpected error: {e}', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+
+    # GET: show vehicles list and add form
+    cars = []
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed!', 'error')
+            return redirect(url_for('driver_dashboard'))
+
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT car_id, make, model, license_plate, seats FROM cars WHERE user_id = %s",
+            (driver_id,)
+        )
+        column_names = [i[0] for i in cursor.description]
+        for record in cursor.fetchall():
+            cars.append(dict(zip(column_names, record)))
+
+        cursor.close()
+        conn.close()
+
+    except mysql.connector.Error as err:
+        flash(f'Database error: {err}', 'error')
+    except Exception as e:
+        flash(f'Unexpected error: {e}', 'error')
+
+    user_name = session.get('user_name', 'Guest')
+    user_role = session.get('user_role', 'Unknown')
+    words = user_name.strip().split()
+    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
+
+    return render_template(
+        'driver_my_vehicles.html',
+        user_name=user_name,
+        user_role=user_role,
+        user_avatar=user_avatar,
+        cars=cars
+    )
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3000)
