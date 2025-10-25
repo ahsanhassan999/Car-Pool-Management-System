@@ -104,6 +104,13 @@
         .sidebar.collapsed .sidebar-brand span {
             display: none;
         }
+        /* Center brand icon when collapsed */
+        .sidebar.collapsed .sidebar-brand {
+            justify-content: center;
+            padding: 0;
+        }
+        .sidebar-brand i { transition: margin 0.2s ease; }
+        .sidebar.collapsed .sidebar-brand i { margin-right: 0; }
 
         .sidebar-menu {
             padding: 20px 0;
@@ -195,20 +202,21 @@
 
         /* Toggle Button */
         .sidebar-toggle {
-            background: none;
-            border: none;
-            color: #64748b;
-            font-size: 1.25rem;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 1.1rem;
             cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: all 0.3s;
+            padding: 8px 10px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
         }
 
         .sidebar-toggle:hover {
-            background: #f1f5f9;
+            background: #e2e8f0;
             color: var(--primary-color);
         }
+        .sidebar-toggle.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
@@ -279,8 +287,8 @@
         <div class="container-fluid h-100">
             <div class="row h-100 align-items-center">
                 <div class="col-auto">
-                    <button class="sidebar-toggle" id="sidebarToggle">
-                        <i class="bi bi-list"></i>
+                    <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar" title="Toggle sidebar">
+                        <i class="bi bi-list" aria-hidden="true"></i>
                     </button>
                 </div>
 
@@ -401,14 +409,39 @@
         const sidebarToggle = document.getElementById('sidebarToggle');
 
         sidebarToggle.addEventListener('click', () => {
-            // For desktop
+            const icon = sidebarToggle.querySelector('i');
             if (window.innerWidth > 768) {
+                const collapsed = !sidebar.classList.contains('collapsed');
                 sidebar.classList.toggle('collapsed');
                 topNavbar.classList.toggle('sidebar-collapsed');
                 mainContent.classList.toggle('sidebar-collapsed');
+                sidebarToggle.classList.toggle('active', collapsed);
+                if (collapsed) {
+                    icon.classList.remove('bi-list');
+                    icon.classList.add('bi-chevron-double-right');
+                    sidebarToggle.setAttribute('title', 'Expand sidebar');
+                    sidebarToggle.setAttribute('aria-expanded', 'false');
+                } else {
+                    icon.classList.remove('bi-chevron-double-right');
+                    icon.classList.add('bi-list');
+                    sidebarToggle.setAttribute('title', 'Collapse sidebar');
+                    sidebarToggle.setAttribute('aria-expanded', 'true');
+                }
             } else {
-                // For mobile
+                const opened = !sidebar.classList.contains('mobile-open');
                 sidebar.classList.toggle('mobile-open');
+                sidebarToggle.classList.toggle('active', opened);
+                if (opened) {
+                    icon.classList.remove('bi-list');
+                    icon.classList.add('bi-x');
+                    sidebarToggle.setAttribute('title', 'Close menu');
+                    sidebarToggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    icon.classList.remove('bi-x');
+                    icon.classList.add('bi-list');
+                    sidebarToggle.setAttribute('title', 'Open menu');
+                    sidebarToggle.setAttribute('aria-expanded', 'false');
+                }
             }
         });
 
@@ -423,8 +456,19 @@
 
         // Handle window resize
         window.addEventListener('resize', () => {
+            const icon = sidebarToggle.querySelector('i');
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('mobile-open');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('bi-list','bi-x');
+                    icon.classList.add('bi-chevron-double-right');
+                } else {
+                    icon.classList.remove('bi-chevron-double-right','bi-x');
+                    icon.classList.add('bi-list');
+                }
+            } else {
+                icon.classList.remove('bi-chevron-double-right');
+                icon.classList.add(sidebar.classList.contains('mobile-open') ? 'bi-x' : 'bi-list');
             }
         });
     </script>
