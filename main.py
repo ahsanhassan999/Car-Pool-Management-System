@@ -259,6 +259,69 @@ def logout():
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))
 
+
+# --- Profile Page (All roles) ---
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        flash('Please login first!', 'error')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    # Defaults from session; we will try to refresh from DB in case of changes
+    user_name = session.get('user_name', 'Guest')
+    user_role = session.get('user_role', 'Unknown')
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            raise Exception('Database connection failed')
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT user_id, name, email, phone_number, role FROM users WHERE user_id = %s",
+            (user_id,)
+        )
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        user_details = None
+        if row:
+            columns = ['user_id', 'name', 'email', 'phone_number', 'role']
+            user_details = dict(zip(columns, row))
+            user_name = user_details.get('name', user_name)
+            user_role = user_details.get('role', user_role)
+        else:
+            user_details = {
+                'user_id': user_id,
+                'name': user_name,
+                'email': session.get('user_email', ''),
+                'phone_number': '',
+                'role': user_role,
+            }
+    except Exception:
+        # Fallback to session-only info if DB fails
+        user_details = {
+            'user_id': user_id,
+            'name': user_name,
+            'email': session.get('user_email', ''),
+            'phone_number': '',
+            'role': user_role,
+        }
+
+    # Avatar initials
+    words = user_name.strip().split()
+    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
+
+    return render_template(
+        'profile.html',
+        user_name=user_name,
+        user_role=user_role,
+        user_avatar=user_avatar,
+        user=user_details,
+    )
+
 @app.route('/driver-dashboard')
 def driver_dashboard():
     if 'user_id' not in session:
