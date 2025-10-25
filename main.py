@@ -419,11 +419,17 @@ def driver_dashboard():
 
     user_name = session.get('user_name', 'Guest')
     user_role = session.get('user_role', 'Unknown')
+    # Create avatar initials for the dashboard header
+    words = user_name.strip().split()
+    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
     
-    return render_template('driver_dashboard.html', 
-                           user_name=user_name, 
-                           user_role=user_role, 
-                           rides=rides if rides else [])
+    return render_template(
+        'driver_dashboard.html', 
+        user_name=user_name, 
+        user_role=user_role, 
+        user_avatar=user_avatar,
+        rides=rides if rides else []
+    )
 
 @app.route('/rider-dashboard')
 def rider_dashboard():
@@ -443,6 +449,9 @@ def rider_dashboard():
 
     user_name = session.get('user_name', 'Guest')
     user_role = session.get('user_role', 'Unknown')
+    # Create avatar initials for the dashboard header
+    words = user_name.strip().split()
+    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
     
     return render_template('rider_dashboard.html', 
                            user_name=user_name, 
