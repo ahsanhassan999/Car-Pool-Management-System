@@ -1371,6 +1371,111 @@ def end_ride_and_archive(ride_id, driver_id):
 # ============================================================================
 
 # --- Route: Create New Ride (Driver) ---
+@app.route('/driver/my-vehicles', methods=['GET', 'POST'])
+def driver_my_vehicles():
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
+        flash('Access denied! Drivers only.', 'error')
+        return redirect(url_for('login'))
+    
+    driver_id = session['user_id']
+    
+    if request.method == 'POST':
+        # Handle adding a new vehicle
+        make = request.form.get('make', '').strip()
+        model = request.form.get('model', '').strip()
+        license_plate = request.form.get('license_plate', '').strip()
+        seats = request.form.get('seats', '').strip()
+        
+        # Validation
+        if not all([make, model, license_plate, seats]):
+            flash('All fields are required!', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        
+        try:
+            seats = int(seats)
+            if seats < 2 or seats > 20:
+                flash('Seats must be between 2 and 20!', 'error')
+                return redirect(url_for('driver_my_vehicles'))
+        except ValueError:
+            flash('Invalid seats value!', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        
+        try:
+            conn = get_db_connection()
+            if not conn:
+                flash('Database connection failed!', 'error')
+                return redirect(url_for('driver_my_vehicles'))
+            
+            cursor = conn.cursor()
+            
+            # Check if license plate already exists
+            cursor.execute("SELECT car_id FROM cars WHERE license_plate = %s", (license_plate,))
+            existing_car = cursor.fetchone()
+            
+            if existing_car:
+                flash('A vehicle with this license plate already exists!', 'error')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('driver_my_vehicles'))
+            
+            # Insert new vehicle
+            insert_query = """
+                INSERT INTO cars (user_id, make, model, license_plate, seats)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_query, (driver_id, make, model, license_plate, seats))
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+            
+            flash('Vehicle added successfully!', 'success')
+            return redirect(url_for('driver_my_vehicles'))
+            
+        except mysql.connector.Error as err:
+            flash(f'Database error: {err}', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+        except Exception as e:
+            flash(f'An error occurred: {e}', 'error')
+            return redirect(url_for('driver_my_vehicles'))
+    
+    # GET: Show vehicles list
+    try:
+        conn = get_db_connection()
+        if not conn:
+            flash('Database connection failed!', 'error')
+            return redirect(url_for('driver_dashboard'))
+        
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT car_id, make, model, license_plate, seats FROM cars WHERE user_id = %s ORDER BY car_id DESC",
+            (driver_id,)
+        )
+        column_names = [i[0] for i in cursor.description]
+        car_records = cursor.fetchall()
+        
+        vehicles = []
+        for record in car_records:
+            vehicles.append(dict(zip(column_names, record)))
+        
+        cursor.close()
+        conn.close()
+        
+        user_name = session.get('user_name', 'Guest')
+        user_role = session.get('user_role', 'Unknown')
+        words = user_name.strip().split()
+        user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
+        
+        return render_template('driver_my_vehicles.html', 
+                             user_name=user_name, 
+                             user_role=user_role,
+                             user_avatar=user_avatar,
+                             vehicles=vehicles)
+    except Exception as e:
+        flash(f'Error: {e}', 'error')
+        return redirect(url_for('driver_dashboard'))
+
+
 @app.route('/driver/create-ride', methods=['GET', 'POST'])
 def driver_create_ride():
     if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
