@@ -298,42 +298,6 @@
                 <!-- Right Side Items -->
                 <div class="col-auto">
                     <div class="d-flex align-items-center gap-3">
-                        <!-- Notifications -->
-                        <div class="dropdown">
-                            <button class="btn btn-link text-decoration-none notification-badge" type="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-bell fs-5 text-secondary"></i>
-                                <span class="badge bg-danger">3</span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
-                                <li><h6 class="dropdown-header">Notifications</h6></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        <div class="d-flex">
-                                            <i class="bi bi-check-circle text-success me-2"></i>
-                                            <div>
-                                                <strong>New Booking</strong>
-                                                <p class="mb-0 small text-muted">John booked your ride to Airport</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        <div class="d-flex">
-                                            <i class="bi bi-chat-dots text-primary me-2"></i>
-                                            <div>
-                                                <strong>New Message</strong>
-                                                <p class="mb-0 small text-muted">Sarah sent you a message</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-center small" href="#">View all notifications</a></li>
-                            </ul>
-                        </div>
-
                         <!-- User Profile -->
                         <div class="dropdown">
                             <div class="user-profile" data-bs-toggle="dropdown">
@@ -367,13 +331,71 @@
         <!-- Your dashboard content goes here -->
         <div class="col-auto">
           <div class="page-header">
-            <h5 class="mb-0">From Johar, Block 17 To Defence, Phase 8</h5>
-            <p class="text-muted mb-0">Driver Name: Ahsan Hassan |
-              Vehicle: 2015 Toyota Carolla |
-              Total Seats: 3 |
-              Availible Seats: 2 |
-            </p>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if rides %}
+            {% for ride in rides %}
+            <div class="ride-card">
+                <div class="ride-route">
+                    <div class="location-dot start-dot"></div>
+                    <div>
+                        <strong>{{ ride.starting_point }}</strong>
+                    </div>
+                    <div class="route-line"></div>
+                    <div class="location-dot end-dot"></div>
+                    <div>
+                        <strong>{{ ride.destination_point }}</strong>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <span class="info-badge">
+                        <i class="bi bi-person-fill"></i> {{ ride.driver_name }}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-calendar3"></i> {{ ride.departure_time.strftime('%b %d, %Y %I:%M %p') if ride.departure_time else 'TBD' }}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-people-fill"></i> {{ ride.available_seats }} / {{ ride.total_seats }} seats
+                    </span>
+                    {% if ride.car_make %}
+                    <span class="info-badge">
+                        <i class="bi bi-car-front-fill"></i> {{ ride.car_make }} {{ ride.car_model }}
+                    </span>
+                    {% endif %}
+                    <span class="info-badge price-tag">
+                        <i class="bi bi-cash"></i> PKR {{ ride.price_per_seat }} / seat
+                    </span>
+                </div>
+
+                {% if ride.driver_notes %}
+                <div class="alert alert-light mb-3">
+                    <i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> {{ ride.driver_notes }}
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center">
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="ride-card text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <h5 class="text-muted mt-3">No Active Rides Available</h5>
+            </div>
+        {% endif %}
+            
           </div>
+
         </div>
     </div>
 

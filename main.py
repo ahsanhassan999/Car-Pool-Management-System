@@ -269,10 +269,19 @@ def driver_dashboard():
         flash('Access denied!', 'error')
         return redirect(url_for('login'))
     
+    success, message, rides = get_all_active_rides()
+    
+    if not success:
+        flash(message, 'error')
+        rides = []
+
     user_name = session.get('user_name', 'Guest')
     user_role = session.get('user_role', 'Unknown')
     
-    return render_template('driver_dashboard.html', user_name=user_name, user_role=user_role)
+    return render_template('driver_dashboard.html', 
+                           user_name=user_name, 
+                           user_role=user_role, 
+                           rides=rides if rides else [])
 
 @app.route('/rider-dashboard')
 def rider_dashboard():
@@ -1553,4 +1562,4 @@ def driver_end_ride(ride_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=3000)

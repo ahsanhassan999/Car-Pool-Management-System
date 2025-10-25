@@ -151,7 +151,6 @@
 
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="text-muted small">
-                        <i class="bi bi-telephone-fill"></i> {{ ride.driver_phone if ride.driver_phone else 'N/A' }}
                     </div>
                     <form method="POST" action="/rider/request-ride/{{ ride.ride_id }}">
                         <button type="submit" class="btn btn-primary">
