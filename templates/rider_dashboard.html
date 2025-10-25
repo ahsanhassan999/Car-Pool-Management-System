@@ -288,9 +288,9 @@
 
                 <!-- Search Bar -->
                 <div class="col">
-                    <form class="search-form">
+                    <form class="search-form" onsubmit="return false;">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="form-control" placeholder="Search rides, users, bookings...">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search rides by route, driver, car...">
                     </form>
                 </div>
 
@@ -364,10 +364,77 @@
       <div class="page-header">
           <h5 class="mb-8">Hello, welcome back {{user_name}}</h3>
       </div>
-      <!-- Your dashboard content goes here -->
-        <div class="column">
-            <!--Yahan sari rides show hongi -->
+      <!-- Active Rides List -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if rides %}
+        <div id="ridesContainer">
+            {% for ride in rides %}
+            <div class="ride-card">
+                <div class="ride-route">
+                    <div class="location-dot start-dot"></div>
+                    <div>
+                        <strong>{{ ride.starting_point }}</strong>
+                    </div>
+                    <div class="route-line"></div>
+                    <div class="location-dot end-dot"></div>
+                    <div>
+                        <strong>{{ ride.destination_point }}</strong>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <span class="info-badge">
+                        <i class="bi bi-person-fill"></i> {{ ride.driver_name }}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-calendar3"></i> {{ ride.departure_time.strftime('%b %d, %Y %I:%M %p') if ride.departure_time else 'TBD' }}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-people-fill"></i> {{ ride.available_seats }} / {{ ride.total_seats }} seats
+                    </span>
+                    {% if ride.car_make %}
+                    <span class="info-badge">
+                        <i class="bi bi-car-front-fill"></i> {{ ride.car_make }} {{ ride.car_model }}
+                    </span>
+                    {% endif %}
+                    <span class="info-badge price-tag">
+                        <i class="bi bi-cash"></i> PKR {{ ride.price_per_seat }} / seat
+                    </span>
+                </div>
+
+                {% if ride.driver_notes %}
+                <div class="alert alert-light mb-3">
+                    <i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> {{ ride.driver_notes }}
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small"></div>
+                    <form method="POST" action="/rider/request-ride/{{ ride.ride_id }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i> Request to Join
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
         </div>
+        {% else %}
+            <div class="ride-card text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <h5 class="text-muted mt-3">No Active Rides Available</h5>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Bootstrap 5 JS -->
@@ -407,6 +474,22 @@
                 sidebar.classList.remove('mobile-open');
             }
         });
+    </script>
+    <script>
+        // Client-side search filter for ride cards
+        (function(){
+            const input = document.getElementById('searchInput');
+            const container = document.getElementById('ridesContainer');
+            if (!input || !container) return;
+            input.addEventListener('input', function(){
+                const q = this.value.toLowerCase();
+                const cards = container.querySelectorAll('.ride-card');
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    card.style.display = text.includes(q) ? '' : 'none';
+                });
+            });
+        })();
     </script>
 </body>
 </html>

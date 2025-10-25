@@ -286,9 +286,9 @@
 
                 <!-- Search Bar -->
                 <div class="col">
-                    <form class="search-form">
+                    <form class="search-form" onsubmit="return false;">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="form-control" placeholder="Search rides, users, bookings...">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search rides by route, driver, car...">
                     </form>
                 </div>
 
@@ -327,54 +327,67 @@
             <p class="text-muted mb-0">Hello, welcome back {{user_name}}</p>
         </div>
 
-        <!-- Your dashboard content goes here -->
-        <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-muted mb-1">Total Rides</p>
-                                <h3 class="mb-0">145</h3>
-                            </div>
-                            <div class="bg-primary bg-opacity-10 p-3 rounded">
-                                <i class="bi bi-car-front fs-3 text-primary"></i>
-                            </div>
-                        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if rides %}
+        <div id="ridesContainer">
+            {% for ride in rides %}
+            <div class="ride-card">
+                <div class="ride-route">
+                    <div class="location-dot start-dot"></div>
+                    <div>
+                        <strong>{{ ride.starting_point }}</strong>
+                    </div>
+                    <div class="route-line"></div>
+                    <div class="location-dot end-dot"></div>
+                    <div>
+                        <strong>{{ ride.destination_point }}</strong>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-muted mb-1">Active Rides</p>
-                                <h3 class="mb-0">23</h3>
-                            </div>
-                            <div class="bg-success bg-opacity-10 p-3 rounded">
-                                <i class="bi bi-calendar-check fs-3 text-success"></i>
-                            </div>
-                        </div>
-                    </div>
+
+                <div class="mb-3">
+                    <span class="info-badge">
+                        <i class="bi bi-person-fill"></i> {{ ride.driver_name }}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-calendar3"></i> {{ ride.departure_time.strftime('%b %d, %Y %I:%M %p') if ride.departure_time else 'TBD' }}
+                    </span>
+                    <span class="info-badge">
+                        <i class="bi bi-people-fill"></i> {{ ride.available_seats }} / {{ ride.total_seats }} seats
+                    </span>
+                    {% if ride.car_make %}
+                    <span class="info-badge">
+                        <i class="bi bi-car-front-fill"></i> {{ ride.car_make }} {{ ride.car_model }}
+                    </span>
+                    {% endif %}
+                    <span class="info-badge price-tag">
+                        <i class="bi bi-cash"></i> PKR {{ ride.price_per_seat }} / seat
+                    </span>
                 </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-muted mb-1">Total Users</p>
-                                <h3 class="mb-0">892</h3>
-                            </div>
-                            <div class="bg-warning bg-opacity-10 p-3 rounded">
-                                <i class="bi bi-people fs-3 text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
+
+                {% if ride.driver_notes %}
+                <div class="alert alert-light mb-3">
+                    <i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> {{ ride.driver_notes }}
                 </div>
+                {% endif %}
             </div>
+            {% endfor %}
         </div>
+        {% else %}
+            <div class="ride-card text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <h5 class="text-muted mt-3">No Active Rides Available</h5>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Bootstrap 5 JS -->
@@ -414,6 +427,22 @@
                 sidebar.classList.remove('mobile-open');
             }
         });
+    </script>
+    <script>
+        // Client-side search filter for ride cards
+        (function(){
+            const input = document.getElementById('searchInput');
+            const container = document.getElementById('ridesContainer');
+            if (!input || !container) return;
+            input.addEventListener('input', function(){
+                const q = this.value.toLowerCase();
+                const cards = container.querySelectorAll('.ride-card');
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    card.style.display = text.includes(q) ? '' : 'none';
+                });
+            });
+        })();
     </script>
 </body>
 </html>
