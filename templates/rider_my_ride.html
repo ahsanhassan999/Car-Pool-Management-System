@@ -18,44 +18,330 @@
             --sidebar-bg: #1e293b;
             --sidebar-hover: #334155;
         }
+        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background-color: #f8fafc;
         }
+        
         /* Top Navbar */
-        .top-navbar { height: var(--navbar-height); background: #fff; border-bottom: 1px solid #e2e8f0; position: fixed; top: 0; left: var(--sidebar-width); right: 0; z-index: 1000; transition: left 0.3s ease; }
+        .top-navbar { 
+            height: var(--navbar-height); 
+            background: #fff; 
+            border-bottom: 1px solid #e2e8f0; 
+            position: fixed; 
+            top: 0; 
+            left: var(--sidebar-width); 
+            right: 0; 
+            z-index: 1000; 
+            transition: left 0.3s ease; 
+        }
         .top-navbar.sidebar-collapsed { left: 70px; }
+        
         /* Sidebar */
-        .sidebar { width: var(--sidebar-width); background: var(--sidebar-bg); position: fixed; top:0; left:0; bottom:0; overflow-y:auto; transition: width 0.3s ease; z-index: 1001; }
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background: var(--sidebar-bg); 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            bottom: 0; 
+            overflow-y: auto; 
+            transition: all 0.3s ease; 
+            z-index: 1001; 
+        }
         .sidebar.collapsed { width: 70px; }
-        .sidebar-brand { height: var(--navbar-height); display:flex; align-items:center; padding:0 20px; color:#fff; font-size:1.25rem; font-weight:700; border-bottom:1px solid #334155; }
-        .sidebar-brand i { font-size:1.5rem; margin-right:12px; }
-        .sidebar.collapsed .sidebar-brand span { display:none; }
-        .sidebar-menu { padding:20px 0; }
-        .menu-item { padding:12px 20px; color:#cbd5e1; display:flex; align-items:center; text-decoration:none; transition:all 0.3s; margin:4px 10px; border-radius:8px; }
-        .menu-item i { font-size:1.25rem; margin-right:12px; min-width:24px; }
-        .menu-item:hover { background: var(--sidebar-hover); color:#fff; }
-        .menu-item.active { background: var(--primary-color); color:#fff; }
-        .sidebar.collapsed .menu-item span { display:none; }
-        /* Main */
-        .main-content { margin-left: var(--sidebar-width); margin-top: var(--navbar-height); padding: 30px; transition: margin-left 0.3s ease; }
+        .sidebar-brand { 
+            height: var(--navbar-height); 
+            display: flex; 
+            align-items: center; 
+            padding: 0 20px; 
+            color: #fff; 
+            font-size: 1.25rem; 
+            font-weight: 700; 
+            border-bottom: 1px solid #334155; 
+        }
+        .sidebar-brand i { font-size: 1.5rem; margin-right: 12px; }
+        .sidebar.collapsed .sidebar-brand span { display: none; }
+        .sidebar-menu { padding: 20px 0; }
+        .menu-item { 
+            padding: 12px 20px; 
+            color: #cbd5e1; 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none; 
+            transition: all 0.3s; 
+            margin: 4px 10px; 
+            border-radius: 8px; 
+        }
+        .menu-item i { font-size: 1.25rem; margin-right: 12px; min-width: 24px; }
+        .menu-item:hover { background: var(--sidebar-hover); color: #fff; }
+        .menu-item.active { background: var(--primary-color); color: #fff; }
+        .sidebar.collapsed .menu-item span { display: none; }
+        
+        /* Main Content */
+        .main-content { 
+            margin-left: var(--sidebar-width); 
+            margin-top: var(--navbar-height); 
+            padding: 30px; 
+            transition: margin-left 0.3s ease; 
+            max-width: 1200px;
+        }
         .main-content.sidebar-collapsed { margin-left: 70px; }
-        .sidebar-toggle { background:none; border:none; color:#64748b; font-size:1.25rem; cursor:pointer; padding:8px; border-radius:8px; transition:all 0.3s; }
-        .sidebar-toggle:hover { background:#f1f5f9; color: var(--primary-color); }
-        @media (max-width:768px){ .sidebar{ transform: translateX(-100%);} .sidebar.mobile-open{ transform: translateX(0);} .top-navbar{ left:0;} .main-content{ margin-left:0;} }
-        /* Page */
-        .page-header { background:#fff; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);} 
-        .card-custom { background:#ffffff; border-radius:12px; padding:25px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);} 
-        .status-confirmed { display:inline-block; padding:6px 16px; background:#dcfce7; color:#166534; border-radius:20px; font-weight:600; font-size:0.875rem; }
-        .route-display { display:flex; align-items:center; gap:15px; padding:20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white; margin-bottom:20px; }
-        .location-icon { font-size:2rem; }
-        .route-arrow { font-size:2rem; opacity:0.7; }
-        .info-row { display:flex; padding:15px; border-bottom:1px solid #e2e8f0; }
-        .info-row:last-child { border-bottom:none; }
-        .info-label { flex:0 0 140px; font-weight:600; color:#64748b; }
-        .info-value { flex:1; color:#1e293b; }
-        .driver-card { background:#f8fafc; padding:20px; border-radius:12px; border:2px solid #e2e8f0; }
-        .driver-avatar { width:80px; height:80px; border-radius:50%; background: var(--primary-color); display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:2rem; }
+        
+        .sidebar-toggle { 
+            background: none; 
+            border: none; 
+            color: #64748b; 
+            font-size: 1.25rem; 
+            cursor: pointer; 
+            padding: 8px; 
+            border-radius: 8px; 
+            transition: all 0.3s; 
+        }
+        .sidebar-toggle:hover { background: #f1f5f9; color: var(--primary-color); }
+        
+        /* Page Header */
+        .page-header { 
+            background: #fff; 
+            padding: 24px; 
+            border-radius: 12px; 
+            margin-bottom: 24px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
+        }
+        .page-header h3 { font-size: 1.5rem; font-weight: 700; color: #1e293b; }
+        
+        /* Cards */
+        .card-custom { 
+            background: #ffffff; 
+            border-radius: 12px; 
+            padding: 24px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
+            transition: box-shadow 0.3s ease;
+        }
+        .card-custom:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card-custom h5 { 
+            font-size: 1.15rem; 
+            font-weight: 600; 
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Status Badge */
+        .status-confirmed { 
+            display: inline-flex; 
+            align-items: center;
+            padding: 8px 16px; 
+            background: #dcfce7; 
+            color: #166534; 
+            border-radius: 20px; 
+            font-weight: 600; 
+            font-size: 0.875rem; 
+        }
+        
+        /* Route Display */
+        .route-display { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            padding: 24px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            border-radius: 12px; 
+            color: white; 
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        }
+        .location-icon { 
+            font-size: 2rem; 
+            flex-shrink: 0;
+        }
+        .route-arrow { 
+            font-size: 2rem; 
+            opacity: 0.8;
+            flex-shrink: 0;
+        }
+        .route-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .route-text .fw-bold { 
+            font-size: 1.1rem; 
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        
+        /* Info Rows */
+        .info-row { 
+            display: flex; 
+            padding: 16px; 
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s ease;
+        }
+        .info-row:hover { background: #f8fafc; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { 
+            flex: 0 0 150px; 
+            font-weight: 600; 
+            color: #64748b; 
+            display: flex;
+            align-items: center;
+        }
+        .info-value { 
+            flex: 1; 
+            color: #1e293b;
+            font-weight: 500;
+        }
+        
+        /* Driver Card */
+        .driver-card { 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); 
+            padding: 24px; 
+            border-radius: 12px; 
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .driver-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+        }
+        .driver-avatar { 
+            width: 80px; 
+            height: 80px; 
+            border-radius: 50%; 
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-weight: 700; 
+            font-size: 2rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+        .driver-info h4 {
+            font-size: 1.4rem;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .driver-info > div {
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar { 
+                transform: translateX(-100%); 
+                box-shadow: none;
+            }
+            .sidebar.mobile-open { 
+                transform: translateX(0); 
+                box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+            }
+            
+            .top-navbar { left: 0; }
+            .main-content { 
+                margin-left: 0; 
+                padding: 16px;
+            }
+            
+            .page-header { 
+                padding: 16px; 
+                margin-bottom: 16px;
+            }
+            .page-header h3 { font-size: 1.25rem; }
+            .page-header .d-flex {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start !important;
+            }
+            .page-header .btn { 
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .card-custom { 
+                padding: 16px; 
+                margin-bottom: 16px;
+            }
+            .card-custom h5 { 
+                font-size: 1rem;
+                margin-bottom: 16px;
+            }
+            
+            /* Route Display Mobile */
+            .route-display { 
+                flex-direction: column;
+                gap: 12px;
+                padding: 16px;
+                text-align: center;
+            }
+            .route-display .location-icon { font-size: 1.5rem; }
+            .route-display .route-arrow { 
+                font-size: 1.5rem; 
+                transform: rotate(90deg);
+            }
+            .route-display .fw-bold { font-size: 1rem; }
+            .route-display .small { font-size: 0.8rem; }
+            
+            /* Info Rows Mobile */
+            .info-row { 
+                flex-direction: column; 
+                gap: 6px;
+                padding: 12px;
+            }
+            .info-label { 
+                flex: none;
+                font-size: 0.875rem;
+            }
+            .info-value { 
+                font-size: 0.95rem;
+            }
+            
+            /* Driver Card Mobile */
+            .driver-card { 
+                padding: 16px;
+            }
+            .driver-card .d-flex {
+                flex-direction: column !important;
+                text-align: center;
+                align-items: center !important;
+            }
+            .driver-avatar { 
+                width: 70px; 
+                height: 70px; 
+                font-size: 1.75rem;
+                margin-bottom: 12px;
+            }
+            .driver-info h4 { 
+                font-size: 1.2rem;
+                text-align: center;
+            }
+            .driver-info > div {
+                text-align: center;
+                font-size: 0.875rem;
+            }
+            
+            .status-confirmed { 
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Tablet optimization */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .main-content { padding: 20px; }
+            .route-display { padding: 20px; }
+            .route-display .fw-bold { font-size: 1rem; }
+        }
+        
+        /* Small phone optimization */
+        @media (max-width: 380px) {
+            .route-display .fw-bold { font-size: 0.95rem; }
+            .info-label, .info-value { font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
@@ -166,15 +452,15 @@
                 <div class="location-icon">
                     <i class="bi bi-geo-alt-fill"></i>
                 </div>
-                <div class="flex-grow-1">
-                    <div class="fw-bold fs-5">{{ ride_data.starting_point }}</div>
+                <div class="route-text">
+                    <div class="fw-bold">{{ ride_data.starting_point }}</div>
                     <div class="small opacity-75">Starting Point</div>
                 </div>
                 <div class="route-arrow">
                     <i class="bi bi-arrow-right"></i>
                 </div>
-                <div class="flex-grow-1 text-end">
-                    <div class="fw-bold fs-5">{{ ride_data.destination_point }}</div>
+                <div class="route-text text-end">
+                    <div class="fw-bold">{{ ride_data.destination_point }}</div>
                     <div class="small opacity-75">Destination</div>
                 </div>
                 <div class="location-icon">
@@ -213,20 +499,26 @@
 
             <!-- Driver Information -->
             <div class="card-custom">
-                <h5 class="mb-3"><i class="bi bi-person-badge-fill text-primary me-2"></i>Your Driver</h5>
+                <h5><i class="bi bi-person-badge-fill text-primary me-2"></i>Your Driver</h5>
                 <div class="driver-card">
                     <div class="d-flex gap-3 align-items-center">
                         <div class="driver-avatar">{{ ride_data.driver_name[0]|upper }}</div>
-                        <div class="flex-grow-1">
-                            <h4 class="mb-1">{{ ride_data.driver_name }}</h4>
-                            <div class="mb-2"><i class="bi bi-telephone-fill text-primary me-2"></i><strong>{{ ride_data.driver_phone if ride_data.driver_phone else 'Not provided' }}</strong></div>
-                            <div><i class="bi bi-envelope-fill text-primary me-2"></i>{{ ride_data.driver_email }}</div>
+                        <div class="driver-info flex-grow-1">
+                            <h4>{{ ride_data.driver_name }}</h4>
+                            <div>
+                                <i class="bi bi-telephone-fill text-primary me-2"></i>
+                                <strong>{{ ride_data.driver_phone if ride_data.driver_phone else 'Not provided' }}</strong>
+                            </div>
+                            <div>
+                                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                                {{ ride_data.driver_email }}
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="alert alert-info mt-3 mb-0">
                     <i class="bi bi-info-circle-fill me-2"></i>
-                    Please contact your driver if you have any questions or need to make changes to your booking.
+                    <span>Please contact your driver if you have any questions or need to make changes to your booking.</span>
                 </div>
             </div>
         {% else %}
