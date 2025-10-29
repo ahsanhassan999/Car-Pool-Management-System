@@ -100,3 +100,75 @@
         .ride-card.hidden {
             display: none;
         }
+
+/* Responsive utilities and mobile-first adjustments */
+@media (max-width: 768px) {
+    .ride-card {
+        padding: 16px;
+    }
+
+    .ride-route {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .route-line {
+        display: none;
+    }
+
+    .info-badge {
+        font-size: 0.8125rem; /* 13px */
+        margin-right: 6px;
+        margin-bottom: 6px;
+    }
+
+    /* Ensure search bars are full-width on mobile */
+    .search-form {
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Stack header actions on very small screens */
+    .page-header .d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    /* Make primary actions easier to tap */
+    .btn-responsive,
+    .page-header .btn,
+    .card .btn,
+    .ride-card .btn {
+        width: 100%;
+    }
+
+    .ride-card {
+        padding: 14px;
+    }
+
+    .no-results {
+        padding: 24px;
+    }
+
+    .page-header h3 {
+        font-size: clamp(1.15rem, 4.5vw, 1.5rem);
+    }
+}
+
+/* Tables: enable horizontal scrolling when needed */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Media elements shouldn't overflow */
+img,
+video,
+canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
