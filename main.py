@@ -15,20 +15,21 @@ def get_db_connection():
             'user': 'root',
             'password': '',
             'database': 'Car-Pool-Management-System',
-            'port': 3306
+            'port': 3308
         },
         {
             'host': 'localhost',
             'user': 'root',
             'password': '',
             'database': 'Car-Pool-Management-System',
-            'port': 3306
+            'port': 3308
         },
         {
             'unix_socket': '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock',
             'user': 'root',
             'password': '',
-            'database': 'Car-Pool-Management-System'
+            'database': 'Car-Pool-Management-System',
+            'port': 3308
         }
     ]
     
