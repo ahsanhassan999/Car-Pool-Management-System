@@ -457,6 +457,7 @@ def rider_dashboard():
     return render_template('rider_dashboard.html', 
                            user_name=user_name, 
                            user_role=user_role, 
+                           user_avatar=user_avatar,
                            rides=rides if rides else [])
 
 @app.route('/admin-dashboard')
