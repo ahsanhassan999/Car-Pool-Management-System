@@ -1790,7 +1790,8 @@ def driver_create_ride():
         
         if success:
             flash(message, 'success')
-            return redirect(url_for('driver_dashboard'))
+            # After creating a ride, take driver to their active ride page
+            return redirect(url_for('driver_view_ride'))
         else:
             flash(message, 'error')
             return redirect(url_for('driver_create_ride'))
