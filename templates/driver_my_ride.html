@@ -179,6 +179,7 @@
                         <div class="rider-avatar">{{ request.rider_name[0]|upper }}</div>
                         <div>
                             <strong>{{ request.rider_name }}</strong>
+                            <span class="status-badge status-pending ms-2">Requested {{ request.seats_booked }} seat{{ '' if request.seats_booked == 1 else 's' }}</span>
                             <div class="text-muted small"><i class="bi bi-telephone-fill"></i> {{ request.rider_phone if request.rider_phone else 'N/A' }}</div>
                             <div class="text-muted small">Requested: {{ request.booked_at.strftime('%b %d, %I:%M %p') if request.booked_at else 'N/A' }}</div>
                         </div>
@@ -206,7 +207,7 @@
                             <div class="rider-avatar">{{ rider.rider_name[0]|upper }}</div>
                             <div>
                                 <strong>{{ rider.rider_name }}</strong>
-                                <span class="status-badge status-confirmed ms-2">Confirmed</span>
+                                <span class="status-badge status-confirmed ms-2">Confirmed x {{ rider.seats_booked }}</span>
                                 <div class="text-muted small"><i class="bi bi-telephone-fill"></i> {{ rider.rider_phone if rider.rider_phone else 'N/A' }}</div>
                                 <div class="text-muted small"><i class="bi bi-envelope-fill"></i> {{ rider.rider_email }}</div>
                             </div>
