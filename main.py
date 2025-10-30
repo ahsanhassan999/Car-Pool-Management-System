@@ -1092,13 +1092,14 @@ def get_all_active_rides():
 
 
 # --- Function 3: Request to Join Ride ---
-def request_to_join_ride(rider_id, ride_id):
+def request_to_join_ride(rider_id, ride_id, seats_requested):
     """
-    Allows a Rider to request a seat.
+    Allows a Rider to request one or more seats.
     
     Args:
         rider_id (int): The user_id of the rider
         ride_id (int): The ride_id to join
+        seats_requested (int): Number of seats the rider wants to book
     
     Returns:
         tuple: (success: bool, message: str, booking_id: int or None)
@@ -1110,7 +1111,20 @@ def request_to_join_ride(rider_id, ride_id):
         
         cursor = conn.cursor()
         
-        # Check 1 (Availability): Ensure available_seats > 0
+        # Normalize and validate seats requested
+        try:
+            seats_requested = int(seats_requested)
+        except (TypeError, ValueError):
+            cursor.close()
+            conn.close()
+            return (False, "Invalid seats requested", None)
+
+        if seats_requested <= 0:
+            cursor.close()
+            conn.close()
+            return (False, "Seats requested must be at least 1", None)
+
+        # Check 1 (Availability): Ensure ride exists and has seats
         cursor.execute("SELECT available_seats, driver_id FROM rides WHERE ride_id = %s AND is_active = TRUE", (ride_id,))
         ride_data = cursor.fetchone()
         
@@ -1126,13 +1140,35 @@ def request_to_join_ride(rider_id, ride_id):
             conn.close()
             return (False, "No seats available for this ride", None)
         
+        if seats_requested > available_seats:
+            cursor.close()
+            conn.close()
+            return (False, "Requested seats exceed available seats", None)
+        
         # Check that rider is not the driver
         if rider_id == driver_id:
             cursor.close()
             conn.close()
             return (False, "You cannot book your own ride", None)
         
-        # Check 2 (Existing Request): Ensure rider doesn't already have a booking
+        # Check 2 (Single active ride): Ensure rider doesn't already have any active booking (pending or confirmed) on any active ride
+        single_ride_check = """
+            SELECT b.booking_id
+            FROM bookings b
+            INNER JOIN rides r ON b.ride_id = r.ride_id
+            WHERE b.rider_id = %s
+              AND b.booking_status IN ('Pending', 'Confirmed')
+              AND r.is_active = TRUE
+            LIMIT 1
+        """
+        cursor.execute(single_ride_check, (rider_id,))
+        has_active_booking = cursor.fetchone()
+        if has_active_booking:
+            cursor.close()
+            conn.close()
+            return (False, "You already have an active booking. Complete or cancel it before joining another ride.", None)
+
+        # Optional: Also ensure rider doesn't already have a booking for this specific ride
         check_query = """
             SELECT booking_id, booking_status 
             FROM bookings 
@@ -1151,9 +1187,9 @@ def request_to_join_ride(rider_id, ride_id):
         # Action: Insert new booking with Pending status
         insert_query = """
             INSERT INTO bookings (ride_id, rider_id, booking_status, seats_booked)
-            VALUES (%s, %s, 'Pending', 1)
+            VALUES (%s, %s, 'Pending', %s)
         """
-        cursor.execute(insert_query, (ride_id, rider_id))
+        cursor.execute(insert_query, (ride_id, rider_id, seats_requested))
         conn.commit()
         
         booking_id = cursor.lastrowid
@@ -1808,8 +1844,9 @@ def rider_request_ride(ride_id):
         return redirect(url_for('login'))
     
     rider_id = session['user_id']
-    
-    success, message, booking_id = request_to_join_ride(rider_id, ride_id)
+
+    seats = request.form.get('seats', '1').strip()
+    success, message, booking_id = request_to_join_ride(rider_id, ride_id, seats)
     
     if success:
         flash(message, 'success')

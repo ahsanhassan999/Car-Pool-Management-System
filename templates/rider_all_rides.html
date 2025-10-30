@@ -256,7 +256,11 @@
 
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="text-muted small"></div>
-                    <form method="POST" action="/rider/request-ride/{{ ride.ride_id }}">
+                    <form method="POST" action="/rider/request-ride/{{ ride.ride_id }}" class="d-flex align-items-center gap-2">
+                        <div class="input-group input-group-sm" style="width: 140px;">
+                            <span class="input-group-text"><i class="bi bi-people-fill"></i></span>
+                            <input type="number" name="seats" class="form-control" min="1" max="{{ ride.available_seats }}" value="1" required>
+                        </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle me-1"></i> Request to Join
                         </button>
