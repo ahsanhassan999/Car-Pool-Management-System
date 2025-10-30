@@ -51,6 +51,31 @@ def get_or_create_csrf_token() -> str:
         session['csrf_token'] = token
     return token
 
+# --- UI helper utilities ---
+def get_user_context() -> dict:
+    """Return common user context for templates: name, role, avatar initials.
+
+    The avatar is generated from the first letter of the first and last words
+    in the user's name when available; otherwise it falls back to the first
+    two characters of the single word. If the name is empty, returns 'GU'.
+    """
+    user_name = (session.get('user_name') or 'Guest').strip()
+    user_role = session.get('user_role', 'Unknown')
+
+    if not user_name:
+        avatar = 'GU'
+    else:
+        words = [w for w in user_name.split() if w]
+        if len(words) >= 2 and words[0] and words[-1]:
+            avatar = f"{words[0][0]}{words[-1][0]}"
+        else:
+            avatar = (words[0][:2] if words else 'GU')
+    return {
+        'user_name': user_name,
+        'user_role': user_role,
+        'user_avatar': avatar.upper(),
+    }
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -384,19 +409,12 @@ def profile():
             'role': row[3]
         }
 
-        user_name = session.get('user_name', 'Guest')
-        user_role = session.get('user_role', 'Unknown')
-        words = user_name.strip().split()
-        user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
-
+        ctx = get_user_context()
         csrf_token = get_or_create_csrf_token()
-
         return render_template('profile.html',
-                               user_name=user_name,
-                               user_role=user_role,
-                               user_avatar=user_avatar,
                                csrf_token=csrf_token,
-                               profile=user_profile)
+                               profile=user_profile,
+                               **ctx)
 
     except Exception as e:
         flash(f'Error: {e}', 'error')
@@ -951,7 +969,8 @@ def delete_car():
 
 @app.route('/demo')
 def demo():
-    return render_template('demo.html')
+    ctx = get_user_context()
+    return render_template('demo.html', **ctx)
 
 # ============================================================================
 # CARPOOL MANAGEMENT SYSTEM - RIDE AND BOOKING FUNCTIONS
@@ -1802,13 +1821,10 @@ def driver_create_ride():
             flash('You need to register a car before creating a ride!', 'error')
             return redirect(url_for('driver_dashboard'))
         
-        user_name = session.get('user_name', 'Guest')
-        user_role = session.get('user_role', 'Unknown')
-        
+        ctx = get_user_context()
         return render_template('create_ride.html', 
-                             user_name=user_name, 
-                             user_role=user_role,
-                             cars=cars)
+                             cars=cars,
+                             **ctx)
     except Exception as e:
         flash(f'Error: {e}', 'error')
         return redirect(url_for('driver_dashboard'))
@@ -1827,13 +1843,10 @@ def rider_all_rides():
         flash(message, 'error')
         rides = []
     
-    user_name = session.get('user_name', 'Guest')
-    user_role = session.get('user_role', 'Unknown')
-    
+    ctx = get_user_context()
     return render_template('rider_all_rides.html',
-                         user_name=user_name,
-                         user_role=user_role,
-                         rides=rides if rides else [])
+                         rides=rides if rides else [],
+                         **ctx)
 
 
 # --- Route: Request to Join Ride (Rider) ---
@@ -1890,13 +1903,10 @@ def driver_view_ride():
         flash(message, 'info')
         data = None
     
-    user_name = session.get('user_name', 'Guest')
-    user_role = session.get('user_role', 'Unknown')
-    
+    ctx = get_user_context()
     return render_template('driver_my_ride.html',
-                         user_name=user_name,
-                         user_role=user_role,
-                         ride_data=data)
+                         ride_data=data,
+                         **ctx)
 
 
 # --- Route: Rider View Current Ride ---
@@ -1914,13 +1924,10 @@ def rider_view_ride():
         flash(message, 'info')
         ride_data = None
     
-    user_name = session.get('user_name', 'Guest')
-    user_role = session.get('user_role', 'Unknown')
-    
+    ctx = get_user_context()
     return render_template('rider_my_ride.html',
-                         user_name=user_name,
-                         user_role=user_role,
-                         ride_data=ride_data)
+                         ride_data=ride_data,
+                         **ctx)
 
 
 # --- Route: Driver End Ride ---

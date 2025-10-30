@@ -683,7 +683,6 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div class="modal-body">
                         <input type="hidden" name="user_id" id="edit_user_id">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
@@ -707,6 +706,17 @@
                                 <option value="Rider">Rider</option>
                                 <option value="Admin">Admin</option>
                             </select>
+                        </div>
+                        <hr>
+                        <div class="mb-2"><i class="bi bi-shield-lock me-1"></i> Change Password (optional)</div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" name="new_password" minlength="6" placeholder="Leave blank to keep current">
+                            <div class="form-text">Leave blank to keep the existing password.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" name="confirm_password" minlength="6" placeholder="Repeat new password">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -815,7 +825,13 @@
                 input.name = 'user_id';
                 input.value = id;
                 
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = 'csrf_token';
+                csrf.value = '{{ csrf_token }}';
+                
                 form.appendChild(input);
+                form.appendChild(csrf);
                 document.body.appendChild(form);
                 form.submit();
             }
