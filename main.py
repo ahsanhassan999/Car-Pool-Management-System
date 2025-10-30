@@ -1860,13 +1860,14 @@ def rider_request_ride(ride_id):
 
     seats = request.form.get('seats', '1').strip()
     success, message, booking_id = request_to_join_ride(rider_id, ride_id, seats)
-    
+
     if success:
         flash(message, 'success')
+        # After requesting, take rider to current ride page to await acceptance
+        return redirect(url_for('rider_view_ride'))
     else:
         flash(message, 'error')
-    
-    return redirect(url_for('rider_all_rides'))
+        return redirect(url_for('rider_all_rides'))
 
 
 # --- Route: Driver Manage Ride Requests ---
