@@ -39,6 +39,13 @@
         .form-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
         .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color);} 
         .btn-primary:hover { background-color: #4f46e5; border-color: #4f46e5; }
+        /* Mobile sidebar behavior */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .top-navbar { left: 0; }
+            .main-content { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
