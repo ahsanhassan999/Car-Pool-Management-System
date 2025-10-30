@@ -1,14 +1,38 @@
+"""
+Car-Pool Management System (Flask)
+
+This file contains the main Flask application, database access helpers,
+domain functions for rides and bookings, and the HTTP routes that power
+the Driver, Rider, and Admin dashboards.
+
+Structure overview:
+- Security & UI helpers: session/CSRF utilities and user context
+- Admin pages: users and cars management
+- Carpool features: core domain functions (create ride, request booking,
+  manage requests, get current/active ride, end ride)
+- Routes: driver/rider/admin dashboards and feature endpoints
+
+Note: Only comments were added here to improve readability for students.
+Application logic remains unchanged.
+"""
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import secrets
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-# Initialize the Flask application
+
+# Initialize the Flask application (single app instance)
 app = Flask(__name__)
-app.secret_key = os.urandom(24) # Change this to a more secure key in production
+# Secret key used for session signing and CSRF token generation
+app.secret_key = os.urandom(24)  # Change this to a stable, secure key in production
 
 # Database configuration for XAMPP - Multiple connection attempts
 def get_db_connection():
+    """Try multiple connection configs to support common local setups.
+
+    Returns a live MySQL connection or None if all attempts fail.
+    """
     connection_configs = [
         {
             'host': '127.0.0.1',
@@ -84,6 +108,7 @@ def home():
 def about():
     return render_template('about.html')
 
+# --- Authentication: Login ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -181,6 +206,7 @@ def login():
     
     return render_template('login.html')
 
+# --- Authentication: Signup ---
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -279,12 +305,14 @@ def signup():
     
     return render_template('signup.html')
 
+# --- Authentication: Logout ---
 @app.route('/logout')
 def logout():
     session.clear()
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))
 
+# --- User Profile (View/Update) ---
 # --- User Profile (View/Update) ---
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -420,6 +448,7 @@ def profile():
         flash(f'Error: {e}', 'error')
         return redirect(url_for('login'))
 
+# --- Driver Dashboard (list of active rides for context) ---
 @app.route('/driver-dashboard')
 def driver_dashboard():
     if 'user_id' not in session:
@@ -450,6 +479,7 @@ def driver_dashboard():
         rides=rides if rides else []
     )
 
+# --- Rider Dashboard (browse all active rides) ---
 @app.route('/rider-dashboard')
 def rider_dashboard():
     if 'user_id' not in session:
@@ -478,6 +508,7 @@ def rider_dashboard():
                            user_avatar=user_avatar,
                            rides=rides if rides else [])
 
+# --- Admin Dashboard (overview) ---
 @app.route('/admin-dashboard')
 def admin_dashboard():
     if 'user_id' not in session:
@@ -508,6 +539,7 @@ def admin_dashboard():
                            rides=rides if rides else [])
     
 # --- NEWLY MODIFIED ROUTE: Fetches All Users from DB ---
+# --- Admin: All Users ---
 @app.route('/admin-dashboard/all-users')
 def all_users():
     # 1. Access Control Check (Ensures Admin is logged in)
@@ -573,6 +605,7 @@ def all_users():
 # -----------------------------------------------------------
 
 # --- ROUTE: Fetches All Cars from DB ---
+# --- Admin: All Cars ---
 @app.route('/admin-dashboard/all-cars')
 def all_cars():
     # Access Control
@@ -627,6 +660,7 @@ def all_cars():
     )
 
 
+# --- Admin: Edit User ---
 @app.route('/admin-dashboard/edit-user', methods=['POST'])
 def edit_user():
     # Access control
@@ -729,6 +763,7 @@ def edit_user():
         return redirect(url_for('all_users'))
 
 
+# --- Admin: Add User ---
 @app.route('/admin-dashboard/add-user', methods=['POST'])
 def add_user():
     # Access control
@@ -807,6 +842,7 @@ def add_user():
         flash(f'Unexpected error: {e}', 'error')
         return redirect(url_for('all_users'))
 
+# --- Admin: Edit Car ---
 @app.route('/admin-dashboard/edit-car', methods=['POST'])
 def edit_car():
     # Access control
@@ -883,6 +919,7 @@ def edit_car():
         return redirect(url_for('all_cars'))
 
 
+# --- Admin: Delete User ---
 @app.route('/admin-dashboard/delete-user', methods=['POST'])
 def delete_user():
     # Access control
@@ -931,6 +968,7 @@ def delete_user():
         return redirect(url_for('all_users'))
 
 
+# --- Admin: Delete Car ---
 @app.route('/admin-dashboard/delete-car', methods=['POST'])
 def delete_car():
     # Access control
@@ -1579,6 +1617,7 @@ def end_ride_and_archive(ride_id, driver_id):
 # ============================================================================
 
 # --- Route: Create New Ride (Driver) ---
+# --- Driver: Manage My Vehicles ---
 @app.route('/driver/my-vehicles', methods=['GET', 'POST'])
 def driver_my_vehicles():
     if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
@@ -1684,6 +1723,7 @@ def driver_my_vehicles():
         return redirect(url_for('driver_dashboard'))
 
 
+# --- Driver: Delete Vehicle ---
 @app.route('/driver/delete-vehicle', methods=['POST'])
 def driver_delete_vehicle():
     if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
@@ -1751,6 +1791,7 @@ def driver_delete_vehicle():
     except Exception as e:
         flash(f'Unexpected error: {e}', 'error')
         return redirect(url_for('driver_my_vehicles'))
+# --- Driver: Create Ride (form + submit) ---
 @app.route('/driver/create-ride', methods=['GET', 'POST'])
 def driver_create_ride():
     if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
@@ -1832,6 +1873,7 @@ def driver_create_ride():
 
 
 # --- Route: View All Active Rides (Rider) ---
+# --- Rider: View all available active rides ---
 @app.route('/rider/all-rides')
 def rider_all_rides():
     if 'user_id' not in session or session.get('user_role', '').lower() != 'rider':
@@ -1851,6 +1893,7 @@ def rider_all_rides():
 
 
 # --- Route: Request to Join Ride (Rider) ---
+# --- Rider: Request to join a specific ride ---
 @app.route('/rider/request-ride/<int:ride_id>', methods=['POST'])
 def rider_request_ride(ride_id):
     if 'user_id' not in session or session.get('user_role', '').lower() != 'rider':
@@ -1872,6 +1915,7 @@ def rider_request_ride(ride_id):
 
 
 # --- Route: Driver Manage Ride Requests ---
+# --- Driver: Accept/Reject a booking request ---
 @app.route('/driver/manage-request/<int:booking_id>/<action>', methods=['POST'])
 def driver_manage_booking(booking_id, action):
     if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
@@ -1891,6 +1935,7 @@ def driver_manage_booking(booking_id, action):
 
 
 # --- Route: Driver View Active Ride ---
+# --- Driver: View current active ride details ---
 @app.route('/driver/my-ride')
 def driver_view_ride():
     if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
@@ -1912,6 +1957,7 @@ def driver_view_ride():
 
 
 # --- Route: Rider View Current Ride ---
+# --- Rider: View current confirmed ride (or pending state) ---
 @app.route('/rider/my-ride')
 def rider_view_ride():
     if 'user_id' not in session or session.get('user_role', '').lower() != 'rider':
@@ -1933,6 +1979,7 @@ def rider_view_ride():
 
 
 # --- Route: Driver End Ride ---
+# --- Driver: End ride and archive it ---
 @app.route('/driver/end-ride/<int:ride_id>', methods=['POST'])
 def driver_end_ride(ride_id):
     if 'user_id' not in session or session.get('user_role', '').lower() != 'driver':
