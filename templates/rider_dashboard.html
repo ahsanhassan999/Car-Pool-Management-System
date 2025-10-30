@@ -394,7 +394,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <small class="text-muted">
-                                    <i class="bi bi-telephone-fill"></i> {{ ride.driver_phone if ride.driver_phone else 'Not provided' }}
+                                    <i class="bi bi-telephone-fill"></i> Phone available after joining
                                 </small>
                             </div>
                             <form action="{{ url_for('rider_request_ride', ride_id=ride.ride_id) }}" method="POST" style="display: inline;">
