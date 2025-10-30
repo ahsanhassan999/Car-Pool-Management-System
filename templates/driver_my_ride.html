@@ -44,6 +44,13 @@
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-confirmed { background: #dcfce7; color: #166534; }
         .btn-sm { padding: 4px 12px; font-size: 0.875rem; }
+        /* Mobile sidebar behavior */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .top-navbar { left: 0; }
+            .main-content { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
