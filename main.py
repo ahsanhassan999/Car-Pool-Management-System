@@ -1771,7 +1771,8 @@ def driver_create_ride():
         
         if success:
             flash(message, 'success')
-            return redirect(url_for('driver_dashboard'))
+            # Redirect to "My Active Ride" page to immediately show the new ride
+            return redirect(url_for('driver_view_ride'))
         else:
             flash(message, 'error')
             return redirect(url_for('driver_create_ride'))
@@ -1893,9 +1894,14 @@ def driver_view_ride():
     user_name = session.get('user_name', 'Guest')
     user_role = session.get('user_role', 'Unknown')
     
+    # Logic to create user avatar initials
+    words = user_name.strip().split()
+    user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
+    
     return render_template('driver_my_ride.html',
                          user_name=user_name,
                          user_role=user_role,
+                         user_avatar=user_avatar,
                          ride_data=data)
 
 

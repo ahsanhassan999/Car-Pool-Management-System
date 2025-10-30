@@ -333,6 +333,17 @@
                 sidebar.classList.remove('mobile-open');
             }
         });
+
+        // Auto-refresh after successful join request
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.querySelector('.alert-success');
+            if (successAlert) {
+                // Auto-refresh after 2 seconds to show updated ride list
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            }
+        });
     </script>
 </body>
 </html>
