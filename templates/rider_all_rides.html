@@ -143,9 +143,9 @@
                 <i class="bi bi-geo-alt-fill"></i>
                 <span>My Current Ride</span>
             </a>
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('rider_past_bookings') }}" class="menu-item">
                 <i class="bi bi-clock-history"></i>
-                <span>My Previous Bookings</span>
+                <span>Past Bookings</span>
             </a>
             <a href="/profile" class="menu-item">
                 <i class="bi bi-person me-2"></i>
@@ -283,7 +283,7 @@
     <!-- Auto-refresh to show newly created rides -->
     <script>
         (function () {
-            const REFRESH_INTERVAL_MS = 10000; // 10 seconds
+            const REFRESH_INTERVAL_MS = 5000; // 5 seconds
             let timerId = setInterval(() => {
                 if (!document.hidden) {
                     window.location.reload();

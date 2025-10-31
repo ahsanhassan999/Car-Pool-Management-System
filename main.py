@@ -1524,7 +1524,93 @@ def get_rider_current_ride(rider_id):
         return (False, f"Unexpected error: {e}", None)
 
 
-# --- Function 7: End Ride and Archive ---
+# --- Function 8: Get Rider Past Bookings ---
+def get_rider_past_bookings(rider_id, search_term=None):
+    """
+    Retrieve all completed bookings for a rider from the ride history.
+
+    Args:
+        rider_id (int): The rider's user_id
+        search_term (str, optional): Case-insensitive filter for route or driver
+
+    Returns:
+        tuple: (success: bool, message: str, bookings: list of dicts or None)
+    """
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return (False, "Database connection failed", None)
+
+        cursor = conn.cursor()
+
+        query = """
+            SELECT 
+                rh.history_id,
+                rh.original_ride_id,
+                rh.starting_point,
+                rh.destination_point,
+                rh.departure_time,
+                rh.final_price,
+                rh.total_riders,
+                rh.completion_date,
+                b.booking_id,
+                b.seats_booked,
+                b.booked_at,
+                u.name AS driver_name,
+                u.phone_number AS driver_phone,
+                u.email AS driver_email
+            FROM ridehistory rh
+            INNER JOIN bookings b ON b.ride_id = rh.original_ride_id
+            INNER JOIN users u ON rh.driver_id = u.user_id
+            WHERE b.rider_id = %s
+              AND b.booking_status = 'Completed'
+        """
+        params = [rider_id]
+
+        if search_term:
+            like_term = f"%{search_term.lower()}%"
+            query += """
+              AND (
+                    LOWER(rh.starting_point) LIKE %s OR
+                    LOWER(rh.destination_point) LIKE %s OR
+                    LOWER(u.name) LIKE %s
+                  )
+            """
+            params.extend([like_term, like_term, like_term])
+
+        query += " ORDER BY COALESCE(rh.completion_date, rh.departure_time) DESC"
+
+        cursor.execute(query, tuple(params))
+
+        column_names = [col[0] for col in cursor.description]
+        records = cursor.fetchall()
+
+        past_bookings = []
+        for record in records:
+            booking = dict(zip(column_names, record))
+            final_price = booking.get('final_price')
+            seats_booked = booking.get('seats_booked')
+            if final_price is not None and seats_booked is not None:
+                try:
+                    booking['total_cost'] = float(final_price) * int(seats_booked)
+                except (TypeError, ValueError):
+                    booking['total_cost'] = None
+            else:
+                booking['total_cost'] = None
+            past_bookings.append(booking)
+
+        cursor.close()
+        conn.close()
+
+        return (True, f"Found {len(past_bookings)} past booking(s)", past_bookings)
+
+    except mysql.connector.Error as err:
+        print(f"❌ Database error in get_rider_past_bookings: {err}")
+        return (False, f"Database error: {err}", None)
+    except Exception as e:
+        print(f"❌ Unexpected error in get_rider_past_bookings: {e}")
+        return (False, f"Unexpected error: {e}", None)
+# --- Function 9: End Ride and Archive ---
 def end_ride_and_archive(ride_id, driver_id):
     """
     Moves the completed ride and confirmed bookings to the history table.
@@ -1975,6 +2061,31 @@ def rider_view_ride():
     ctx = get_user_context()
     return render_template('rider_my_ride.html',
                          ride_data=ride_data,
+                         **ctx)
+
+
+# --- Route: Rider Past Bookings ---
+@app.route('/rider/past-bookings')
+def rider_past_bookings():
+    if 'user_id' not in session or session.get('user_role', '').lower() != 'rider':
+        flash('Access denied! Riders only.', 'error')
+        return redirect(url_for('login'))
+
+    rider_id = session['user_id']
+    search_query = request.args.get('q', '').strip()
+
+    success, message, bookings = get_rider_past_bookings(rider_id, search_query or None)
+
+    if not success:
+        flash(message, 'error')
+        bookings = []
+    elif not bookings and search_query:
+        flash('No past bookings match your search.', 'info')
+
+    ctx = get_user_context()
+    return render_template('rider_past_bookings.html',
+                         bookings=bookings,
+                         search_query=search_query,
                          **ctx)
 
 

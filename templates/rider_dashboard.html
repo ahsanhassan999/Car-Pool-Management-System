@@ -276,7 +276,7 @@
                 <i class="bi bi-geo-alt-fill"></i>
                 <span>My Current Ride</span>
             </a>
-            <a href="#" class="menu-item">
+            <a href="{{ url_for('rider_past_bookings') }}" class="menu-item">
                 <i class="bi bi-clock-history"></i>
                 <span>Past Bookings</span>
             </a>
@@ -541,6 +541,29 @@
                     const text = card.textContent.toLowerCase();
                     card.style.display = text.includes(q) ? '' : 'none';
                 });
+            });
+        })();
+    </script>
+    <script>
+        // Auto-refresh dashboard data every 5 seconds
+        (function () {
+            const REFRESH_INTERVAL_MS = 5000; // 5 seconds
+            let timerId = setInterval(() => {
+                if (!document.hidden) {
+                    window.location.reload();
+                }
+            }, REFRESH_INTERVAL_MS);
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(timerId);
+                } else {
+                    timerId = setInterval(() => {
+                        if (!document.hidden) {
+                            window.location.reload();
+                        }
+                    }, REFRESH_INTERVAL_MS);
+                }
             });
         })();
     </script>
