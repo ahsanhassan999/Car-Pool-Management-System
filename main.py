@@ -1680,8 +1680,11 @@ def end_ride_and_archive(ride_id, driver_id):
             (ride_id,)
         )
         
-        # Action 3: Delete the ride from active rides
-        cursor.execute("DELETE FROM rides WHERE ride_id = %s", (ride_id,))
+        # Action 3: Mark ride as inactive (retain record for history lookups)
+        cursor.execute(
+            "UPDATE rides SET is_active = FALSE, available_seats = 0 WHERE ride_id = %s",
+            (ride_id,)
+        )
         
         conn.commit()
         
