@@ -16,7 +16,7 @@ Note: Only comments were added here to improve readability for students.
 Application logic remains unchanged.
 """
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import secrets
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -66,6 +66,51 @@ def get_db_connection():
     
     return None
 
+# --- Dashboard update helpers ---
+def fetch_dashboard_update_state() -> dict:
+    """Return tokens that let dashboards detect new rides or riders."""
+    state = {
+        'max_active_ride_id': 0,
+        'active_ride_count': 0,
+        'max_rider_id': 0,
+        'rider_count': 0,
+    }
+
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return state
+
+        cursor = conn.cursor()
+
+        # Track active rides using the highest ride_id and active ride count
+        cursor.execute(
+            "SELECT COALESCE(MAX(ride_id), 0), COUNT(*) FROM rides WHERE is_active = TRUE"
+        )
+        ride_row = cursor.fetchone()
+        if ride_row:
+            state['max_active_ride_id'] = int(ride_row[0] or 0)
+            state['active_ride_count'] = int(ride_row[1] or 0)
+
+        # Track registered riders (role is stored capitalized in DB)
+        cursor.execute(
+            "SELECT COALESCE(MAX(user_id), 0), COUNT(*) FROM users WHERE LOWER(role) = 'rider'"
+        )
+        rider_row = cursor.fetchone()
+        if rider_row:
+            state['max_rider_id'] = int(rider_row[0] or 0)
+            state['rider_count'] = int(rider_row[1] or 0)
+
+        cursor.close()
+        conn.close()
+
+    except mysql.connector.Error as err:
+        print(f"❌ Database error in fetch_dashboard_update_state: {err}")
+    except Exception as exc:
+        print(f"❌ Unexpected error in fetch_dashboard_update_state: {exc}")
+
+    return state
+
 # --- Security utilities ---
 def get_or_create_csrf_token() -> str:
     """Return a stable CSRF token for the current session, creating one if needed."""
@@ -99,6 +144,16 @@ def get_user_context() -> dict:
         'user_role': user_role,
         'user_avatar': avatar.upper(),
     }
+
+
+@app.route('/api/dashboard-updates')
+def api_dashboard_updates():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    state = fetch_dashboard_update_state()
+    return jsonify(state)
+
 
 @app.route('/')
 def home():
@@ -471,12 +526,15 @@ def driver_dashboard():
     words = user_name.strip().split()
     user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
     
+    dashboard_state = fetch_dashboard_update_state()
+
     return render_template(
         'driver_dashboard.html', 
         user_name=user_name, 
         user_role=user_role, 
         user_avatar=user_avatar,
-        rides=rides if rides else []
+        rides=rides if rides else [],
+        dashboard_state=dashboard_state
     )
 
 # --- Rider Dashboard (browse all active rides) ---
@@ -502,11 +560,14 @@ def rider_dashboard():
     words = user_name.strip().split()
     user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
     
+    dashboard_state = fetch_dashboard_update_state()
+
     return render_template('rider_dashboard.html', 
                            user_name=user_name, 
                            user_role=user_role, 
                            user_avatar=user_avatar,
-                           rides=rides if rides else [])
+                           rides=rides if rides else [],
+                           dashboard_state=dashboard_state)
 
 # --- Admin Dashboard (overview) ---
 @app.route('/admin-dashboard')
@@ -532,11 +593,14 @@ def admin_dashboard():
     words = user_name.strip().split()
     user_avatar = (words[0][0] + words[-1][0]) if len(words) >= 2 else words[0][:2]
 
+    dashboard_state = fetch_dashboard_update_state()
+
     return render_template('admin_dashboard.html', 
                            user_name=user_name, 
                            user_role=user_role, 
                            user_avatar=user_avatar,
-                           rides=rides if rides else [])
+                           rides=rides if rides else [],
+                           dashboard_state=dashboard_state)
     
 # --- NEWLY MODIFIED ROUTE: Fetches All Users from DB ---
 # --- Admin: All Users ---
