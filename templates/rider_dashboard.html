@@ -544,5 +544,28 @@
             });
         })();
     </script>
+    <script>
+        // Auto-refresh dashboard data every 5 seconds
+        (function () {
+            const REFRESH_INTERVAL_MS = 5000; // 5 seconds
+            let timerId = setInterval(() => {
+                if (!document.hidden) {
+                    window.location.reload();
+                }
+            }, REFRESH_INTERVAL_MS);
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(timerId);
+                } else {
+                    timerId = setInterval(() => {
+                        if (!document.hidden) {
+                            window.location.reload();
+                        }
+                    }, REFRESH_INTERVAL_MS);
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
