@@ -11,495 +11,246 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='components.css') }}">
-    
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #8b5cf6;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: #f8fafc;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 0;
-            text-align: center;
+        @keyframes float-slow {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
         }
 
-        .hero-section h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .hero-section p {
-            font-size: 1.25rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Mission Section */
-        .mission-section {
-            padding: 60px 0;
-            background: white;
-        }
-
-        .mission-card {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 30px;
-            height: 100%;
-            border: 2px solid #e2e8f0;
-            transition: all 0.3s;
-        }
-
-        .mission-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .mission-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        /* Features Section */
-        .features-section {
-            padding: 60px 0;
-            background: #f8fafc;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .feature-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--primary-color);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 0;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        /* Team Section */
-        .team-section {
-            padding: 60px 0;
-            background: white;
-        }
-
-        .team-member {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .team-avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            font-weight: 600;
-            margin: 0 auto 20px;
-            border: 5px solid #f8fafc;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .team-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .team-role {
-            color: var(--primary-color);
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 50px;
-            color: #1e293b;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            font-size: 1.1rem;
-            color: #64748b;
-            max-width: 700px;
-            margin: -30px auto 50px;
-        }
-
-        /* CTA Section */
-        .cta-section {
-            padding: 80px 0;
-            background: #f8fafc;
-            text-align: center;
-        }
-
-        .cta-section h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 30px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            border-radius: 10px;
-        }
-
-        .btn-primary:hover {
-            background-color: #4f46e5;
-            border-color: #4f46e5;
-        }
-
-        .btn-outline-primary {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            border-radius: 10px;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
-
-        /* Navbar */
-        .custom-navbar {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 15px 0;
-        }
-
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color) !important;
-        }
-
-        .nav-link {
-            color: #64748b !important;
-            font-weight: 500;
-            margin: 0 10px;
-        }
-
-        .nav-link:hover {
-            color: var(--primary-color) !important;
+        .animate-float {
+            animation: float-slow 4s ease-in-out infinite;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg custom-navbar">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-car-front-fill me-2"></i>CarPool
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/about">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/signup">Sign Up</a>
-                    </li>
-                </ul>
+    <!-- Responsive Navigation Bar -->
+    <nav class="bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="/" class="text-white text-2xl font-bold rounded-lg p-2 transition duration-300 hover:bg-gray-700">🚗 CarPool.</a>
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex space-x-4">
+                    <a href="/" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">Home</a>
+                    <a href="/about" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium shadow-inner transition duration-300">About</a>
+                    <a href="/about" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">Services</a>
+                    <a href="/login" class="bg-blue-800 text-white hover:bg-blue-900 px-4 py-2 rounded-full text-sm font-medium shadow-md transition duration-300">Login</a>
+                    <a href="/signup" class="bg-green-600 text-white hover:bg-green-800 px-4 py-2 rounded-full text-sm font-medium shadow-md transition duration-300">Sign Up</a>
+                </div>
+
+                <!-- Mobile Menu Button (Hamburger) -->
+                <button id="menu-button" class="md:hidden text-gray-300 hover:text-white p-2 rounded-md focus:outline-none transition duration-300" aria-label="Toggle Menu">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="/" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="/about" class="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="/about" class="text-gray-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Services</a>
+                <a href="/login" class="text-indigo-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Login</a>
+                <a href="/signup" class="text-green-300 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Sign Up</a>
             </div>
         </div>
     </nav>
+    <!-- End Responsive Navigation Bar -->
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <h1><i class="bi bi-car-front-fill me-3"></i>About CarPool</h1>
-            <p>Revolutionizing urban transportation through smart carpooling solutions. 
-               Making commutes affordable, sustainable, and social.</p>
-        </div>
-    </section>
-
-    <!-- Mission Section -->
-    <section class="mission-section">
-        <div class="container">
-            <h2 class="section-title">Our Mission</h2>
-            <p class="section-subtitle">
-                We're on a mission to reduce traffic congestion, lower carbon emissions, 
-                and make daily commutes more affordable and enjoyable for everyone.
-            </p>
-            
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="mission-card">
-                        <div class="mission-icon">
-                            <i class="bi bi-globe"></i>
-                        </div>
-                        <h4>Environmental Impact</h4>
-                        <p>Reduce carbon footprint by sharing rides and decreasing the number of vehicles on the road.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="mission-card">
-                        <div class="mission-icon">
-                            <i class="bi bi-piggy-bank-fill"></i>
-                        </div>
-                        <h4>Cost Savings</h4>
-                        <p>Save money on fuel, tolls, and parking by sharing travel costs with fellow commuters.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="mission-card">
-                        <div class="mission-icon">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <h4>Community Building</h4>
-                        <p>Connect with neighbors and colleagues, building a stronger community one ride at a time.</p>
-                    </div>
-                </div>
+    <main>
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white py-24">
+            <div class="absolute inset-0">
+                <div class="absolute -top-20 -right-32 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-10 w-72 h-72 bg-indigo-300/20 rounded-full blur-2xl"></div>
             </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
-                        <div class="stat-number">10K+</div>
-                        <div class="stat-label">Active Users</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
-                        <div class="stat-number">50K+</div>
-                        <div class="stat-label">Rides Completed</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
-                        <div class="stat-number">2.5M</div>
-                        <div class="stat-label">PKR Saved</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
-                        <div class="stat-number">500+</div>
-                        <div class="stat-label">Tons CO₂ Reduced</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features-section">
-        <div class="container">
-            <h2 class="section-title">Why Choose CarPool?</h2>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <div>
-                            <h5>Safe & Secure</h5>
-                            <p>Verified users, secure payments, and real-time ride tracking for your peace of mind.</p>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <span class="inline-flex items-center px-4 py-1 rounded-full bg-white/10 text-sm uppercase tracking-wide">About CarPool</span>
+                        <h1 class="mt-6 text-4xl sm:text-5xl font-extrabold leading-tight">Built for smarter, greener shared journeys</h1>
+                        <p class="mt-6 text-lg text-indigo-100">CarPool Management System connects commuters, empowers drivers, and keeps cities moving. We help communities share rides effortlessly while reducing congestion and transportation costs.</p>
+                        <div class="mt-8 flex flex-wrap gap-4">
+                            <a href="/signup" class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white text-indigo-700 font-semibold shadow-lg hover:bg-indigo-100 transition transform hover:-translate-y-0.5">Join the community</a>
+                            <a href="/login" class="inline-flex items-center justify-center px-6 py-3 rounded-full border border-white/60 text-white font-semibold hover:bg-white/10 transition">Explore dashboards</a>
                         </div>
                     </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="bi bi-lightning-charge-fill"></i>
-                        </div>
-                        <div>
-                            <h5>Easy to Use</h5>
-                            <p>Simple interface to find rides or offer your own in just a few clicks.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="bi bi-clock-fill"></i>
-                        </div>
-                        <div>
-                            <h5>Flexible Scheduling</h5>
-                            <p>Find rides that match your schedule or create your own at your convenience.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="bi bi-chat-dots-fill"></i>
-                        </div>
-                        <div>
-                            <h5>Direct Communication</h5>
-                            <p>Connect directly with drivers and riders for a seamless experience.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="bi bi-star-fill"></i>
-                        </div>
-                        <div>
-                            <h5>Trusted Community</h5>
-                            <p>Build your reputation through ratings and reviews from fellow users.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="bi bi-geo-alt-fill"></i>
-                        </div>
-                        <div>
-                            <h5>City-Wide Coverage</h5>
-                            <p>Find rides across the entire city to wherever you need to go.</p>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl border border-white/20 p-8 shadow-xl animate-float">
+                        <h3 class="text-sm uppercase tracking-wider text-indigo-100 mb-6">Impact Snapshot</h3>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <div class="text-3xl font-bold">10K+</div>
+                                <p class="text-sm text-indigo-100/80">Active users building daily carpools</p>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-3xl font-bold">50K+</div>
+                                <p class="text-sm text-indigo-100/80">Rides completed with real savings</p>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-3xl font-bold">2.5M</div>
+                                <p class="text-sm text-indigo-100/80">PKR saved by our community</p>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-3xl font-bold">500+</div>
+                                <p class="text-sm text-indigo-100/80">Tons of CO₂ kept out of the atmosphere</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Team Section -->
-    <section class="team-section">
-        <div class="container">
-            <h2 class="section-title">Meet Our Team</h2>
-            <p class="section-subtitle">
-                Passionate individuals working together to make urban transportation better for everyone.
-            </p>
-            
-            <div class="row g-4">
-                <div class="col-md-3 col-sm-6">
-                    <div class="team-member">
-                        <div class="team-avatar">AH</div>
-                        <div class="team-name">Ahsan Hassan</div>
-                        <div class="team-role">Co-Founder & CEO</div>
-                        <div class="text-muted">Vision & Strategy</div>
-                    </div>
+        <!-- Mission Section -->
+        <section class="py-16 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-slate-900">Our mission is to make every commute count</h2>
+                    <p class="mt-4 text-lg text-slate-600">We reduce traffic congestion, lower carbon emissions, and make daily travel more affordable by helping people share the road responsibly.</p>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="team-member">
-                        <div class="team-avatar">SA</div>
-                        <div class="team-name">Syed Ahsan Hassan</div>
-                        <div class="team-role">CTO</div>
-                        <div class="text-muted">Technology & Innovation</div>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-2xl shadow-lg border-t-4 border-emerald-400 p-8 transition hover:-translate-y-1 hover:shadow-xl">
+                        <div class="text-4xl mb-4">🌍</div>
+                        <h3 class="text-xl font-semibold text-slate-900">Environmental Impact</h3>
+                        <p class="mt-3 text-slate-600">Fewer cars on the road means cleaner air and quieter streets. Every shared ride helps cities breathe easier.</p>
                     </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="team-member">
-                        <div class="team-avatar">FA</div>
-                        <div class="team-name">Farzam Ahmed</div>
-                        <div class="team-role">Head of Operations</div>
-                        <div class="text-muted">Operations & Growth</div>
+                    <div class="bg-white rounded-2xl shadow-lg border-t-4 border-indigo-400 p-8 transition hover:-translate-y-1 hover:shadow-xl">
+                        <div class="text-4xl mb-4">💸</div>
+                        <h3 class="text-xl font-semibold text-slate-900">Cost Savings</h3>
+                        <p class="mt-3 text-slate-600">Our smart matching tools help riders and drivers split expenses so everyone pays less for the miles they travel.</p>
                     </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="team-member">
-                        <div class="team-avatar">WA</div>
-                        <div class="team-name">Wasif Ali</div>
-                        <div class="team-role">Lead Developer</div>
-                        <div class="text-muted">Product Development</div>
+                    <div class="bg-white rounded-2xl shadow-lg border-t-4 border-purple-400 p-8 transition hover:-translate-y-1 hover:shadow-xl">
+                        <div class="text-4xl mb-4">🤝</div>
+                        <h3 class="text-xl font-semibold text-slate-900">Community Building</h3>
+                        <p class="mt-3 text-slate-600">Connect with neighbors, colleagues, and classmates. Shared journeys create safer, more social commutes.</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="container">
-            <h2>Ready to Start Your Journey?</h2>
-            <p class="lead text-muted">Join thousands of commuters who are already saving money and reducing their carbon footprint.</p>
-            
-            <div class="cta-buttons">
-                <a href="/signup" class="btn btn-primary btn-lg">
-                    <i class="bi bi-person-plus-fill me-2"></i>Sign Up Now
-                </a>
-                <a href="/login" class="btn btn-outline-primary btn-lg">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
-                </a>
+        <!-- Why Choose Section -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-slate-900">Why organizations choose CarPool</h2>
+                    <p class="mt-4 text-lg text-slate-600">Our platform blends modern design with dependable workflows so every ride—from request to arrival—feels effortless.</p>
+                </div>
+                <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="text-indigo-500 text-3xl mb-4"><i class="bi bi-shield-check"></i></div>
+                        <h3 class="text-xl font-semibold text-slate-900">Safe & Secure</h3>
+                        <p class="mt-3 text-slate-600">Verified profiles, role-based dashboards, and structured approvals keep every ride trustworthy.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="text-indigo-500 text-3xl mb-4"><i class="bi bi-lightning-charge-fill"></i></div>
+                        <h3 class="text-xl font-semibold text-slate-900">Effortless Experience</h3>
+                        <p class="mt-3 text-slate-600">Intuitive forms and dashboards mean drivers can post rides and riders can book seats in seconds.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="text-indigo-500 text-3xl mb-4"><i class="bi bi-clock-fill"></i></div>
+                        <h3 class="text-xl font-semibold text-slate-900">Flexible Scheduling</h3>
+                        <p class="mt-3 text-slate-600">Configure departures, capacity, and pricing to match your daily routine or evolving travel plans.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="text-indigo-500 text-3xl mb-4"><i class="bi bi-chat-dots-fill"></i></div>
+                        <h3 class="text-xl font-semibold text-slate-900">Direct Communication</h3>
+                        <p class="mt-3 text-slate-600">Built-in messaging keeps riders and drivers aligned on meeting points, timing, and expectations.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="text-indigo-500 text-3xl mb-4"><i class="bi bi-star-fill"></i></div>
+                        <h3 class="text-xl font-semibold text-slate-900">Trusted Community</h3>
+                        <p class="mt-3 text-slate-600">Ratings and trackable ride history encourage accountability and reward reliable members.</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="text-indigo-500 text-3xl mb-4"><i class="bi bi-geo-alt-fill"></i></div>
+                        <h3 class="text-xl font-semibold text-slate-900">City-Wide Coverage</h3>
+                        <p class="mt-3 text-slate-600">Whether you commute across town or across campus, find or host rides wherever the day takes you.</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="py-16 bg-slate-900 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white/10 border border-white/20 rounded-2xl p-8 text-center shadow-lg">
+                        <div class="text-4xl font-bold">10K+</div>
+                        <p class="mt-2 text-indigo-100">Daily commuters using CarPool to share seats</p>
+                    </div>
+                    <div class="bg-white/10 border border-white/20 rounded-2xl p-8 text-center shadow-lg">
+                        <div class="text-4xl font-bold">50K+</div>
+                        <p class="mt-2 text-indigo-100">Successful journeys coordinated through the platform</p>
+                    </div>
+                    <div class="bg-white/10 border border-white/20 rounded-2xl p-8 text-center shadow-lg">
+                        <div class="text-4xl font-bold">2.5M</div>
+                        <p class="mt-2 text-indigo-100">PKR collectively saved in commute expenses</p>
+                    </div>
+                    <div class="bg-white/10 border border-white/20 rounded-2xl p-8 text-center shadow-lg">
+                        <div class="text-4xl font-bold">500+</div>
+                        <p class="mt-2 text-indigo-100">Tons of CO₂ prevented from entering the atmosphere</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="py-16 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-slate-900">Meet the team steering CarPool</h2>
+                    <p class="mt-4 text-lg text-slate-600">A multidisciplinary crew focused on crafting delightful commutes and reliable technology.</p>
+                </div>
+                <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white rounded-2xl shadow-lg p-8 text-center border border-slate-200">
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center text-3xl font-semibold">AH</div>
+                        <h3 class="text-xl font-semibold text-slate-900">Ahsan Hassan</h3>
+                        <p class="text-indigo-500 font-medium">Co-Founder &amp; CEO</p>
+                        <p class="mt-3 text-sm text-slate-600">Sets the vision, partnerships, and growth roadmap.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-8 text-center border border-slate-200">
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center text-3xl font-semibold">SA</div>
+                        <h3 class="text-xl font-semibold text-slate-900">Syed Ahsan Hassan</h3>
+                        <p class="text-indigo-500 font-medium">CTO</p>
+                        <p class="mt-3 text-sm text-slate-600">Leads platform architecture, data, and security initiatives.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-8 text-center border border-slate-200">
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center text-3xl font-semibold">FA</div>
+                        <h3 class="text-xl font-semibold text-slate-900">Farzam Ahmed</h3>
+                        <p class="text-indigo-500 font-medium">Head of Operations</p>
+                        <p class="mt-3 text-sm text-slate-600">Ensures every ride request and response feels seamless.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-8 text-center border border-slate-200">
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center text-3xl font-semibold">WA</div>
+                        <h3 class="text-xl font-semibold text-slate-900">Wasif Ali</h3>
+                        <p class="text-indigo-500 font-medium">Lead Developer</p>
+                        <p class="mt-3 text-sm text-slate-600">Codes elegant interfaces and keeps our releases on schedule.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center bg-slate-900 rounded-3xl py-16 shadow-2xl">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Ready to start your next journey with us?</h2>
+                <p class="mt-4 text-lg text-slate-200">Join thousands of commuters who share rides, save on fuel, and connect with their community every single day.</p>
+                <div class="mt-10 flex flex-wrap justify-center gap-4">
+                    <a href="/signup" class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white text-indigo-700 font-semibold shadow-lg hover:bg-indigo-100 transition">Sign up today</a>
+                    <a href="/login" class="inline-flex items-center justify-center px-6 py-3 rounded-full border border-white/70 text-white font-semibold hover:bg-white/10 transition">Log in to your account</a>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- Footer -->
     <footer style="background: #1e293b; color: white; padding: 40px 0;">
@@ -531,6 +282,20 @@
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript for navigation toggle -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuButton = document.getElementById('menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (menuButton && mobileMenu) {
+            menuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
