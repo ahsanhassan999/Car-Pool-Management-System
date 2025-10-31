@@ -256,7 +256,13 @@
         }
     </style>
 </head>
-<body>
+<body
+    data-max-active-ride-id="{{ dashboard_state.max_active_ride_id }}"
+    data-active-ride-count="{{ dashboard_state.active_ride_count }}"
+    data-max-rider-id="{{ dashboard_state.max_rider_id }}"
+    data-rider-count="{{ dashboard_state.rider_count }}"
+    data-dashboard-update-url="{{ url_for('api_dashboard_updates') }}"
+>
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
@@ -536,24 +542,71 @@
         })();
     </script>
     <script>
-        // Auto-refresh dashboard data every 5 seconds
+        // Refresh dashboard when new riders or rides are detected
         (function () {
-            const REFRESH_INTERVAL_MS = 5000; // 5 seconds
-            let timerId = setInterval(() => {
-                if (!document.hidden) {
-                    window.location.reload();
+            const CHECK_INTERVAL_MS = 5000;
+            const body = document.body;
+            const updateUrl = body.dataset.dashboardUpdateUrl;
+
+            if (!updateUrl) {
+                return;
+            }
+
+            let lastMaxRideId = Number(body.dataset.maxActiveRideId || '0');
+            let lastRideCount = Number(body.dataset.activeRideCount || '0');
+            let lastMaxRiderId = Number(body.dataset.maxRiderId || '0');
+            let lastRiderCount = Number(body.dataset.riderCount || '0');
+
+            const shouldReload = (data) => {
+                const nextMaxRideId = Number(data.max_active_ride_id || 0);
+                const nextRideCount = Number(data.active_ride_count || 0);
+                const nextMaxRiderId = Number(data.max_rider_id || 0);
+                const nextRiderCount = Number(data.rider_count || 0);
+
+                const hasNewRide = nextMaxRideId > lastMaxRideId || nextRideCount > lastRideCount;
+                const hasNewRider = nextMaxRiderId > lastMaxRiderId || nextRiderCount > lastRiderCount;
+
+                lastMaxRideId = nextMaxRideId;
+                lastRideCount = nextRideCount;
+                lastMaxRiderId = nextMaxRiderId;
+                lastRiderCount = nextRiderCount;
+
+                return hasNewRide || hasNewRider;
+            };
+
+            const checkForUpdates = async () => {
+                if (document.hidden) {
+                    return;
                 }
-            }, REFRESH_INTERVAL_MS);
+
+                try {
+                    const response = await fetch(updateUrl, {
+                        headers: { 'Accept': 'application/json' },
+                        cache: 'no-store',
+                    });
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (shouldReload(data)) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Dashboard update check failed:', error);
+                }
+            };
+
+            let timerId = setInterval(checkForUpdates, CHECK_INTERVAL_MS);
 
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     clearInterval(timerId);
                 } else {
-                    timerId = setInterval(() => {
-                        if (!document.hidden) {
-                            window.location.reload();
-                        }
-                    }, REFRESH_INTERVAL_MS);
+                    checkForUpdates();
+                    timerId = setInterval(checkForUpdates, CHECK_INTERVAL_MS);
                 }
             });
         })();
