@@ -12,11 +12,9 @@ Structure overview:
   manage requests, get current/active ride, end ride)
 - Routes: driver/rider/admin dashboards and feature endpoints
 
-Note: Only comments were added here to improve readability for students.
-Application logic remains unchanged.
 """
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, abort
 import secrets
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
