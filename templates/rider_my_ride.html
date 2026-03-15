@@ -58,6 +58,7 @@
         .card-custom { background: var(--surface); border-radius:12px; padding:25px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);} 
         .status-confirmed { display:inline-block; padding:6px 16px; background:#dcfce7; color:#166534; border-radius:20px; font-weight:600; font-size:0.875rem; }
         .route-display { display:flex; align-items:center; gap:15px; padding:20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white; margin-bottom:20px; }
+        .route-display .fw-bold { overflow-wrap: anywhere; word-break: break-word; }
         .location-icon { font-size:2rem; }
         .route-arrow { font-size:2rem; opacity:0.7; }
         .info-row { display:flex; align-items:flex-start; gap:12px; padding:15px; border-bottom:1px solid #e2e8f0; }
@@ -81,8 +82,11 @@
         }
         @media (max-width: 576px){
             .page-header h3 { font-size: clamp(1.1rem, 2.5vw, 1.25rem); }
-            .route-display { flex-direction: column; align-items: stretch; text-align:center; gap:10px; }
+            .route-display { flex-direction: column; align-items: stretch; text-align:left; gap:10px; padding:16px; }
             .route-arrow, .location-icon { display:none; }
+            .route-display .fw-bold { font-size: clamp(1rem, 4vw, 1.1rem); }
+            .route-display .small { font-size: 0.9rem; }
+            .route-display .text-end { text-align: inherit !important; }
             .info-row { flex-direction: column; gap:6px; padding:12px 0; }
             .info-label { flex: none; font-size: 0.95rem; }
             .info-value { font-size: 1rem; }
@@ -204,7 +208,7 @@
                 <div class="route-arrow">
                     <i class="bi bi-arrow-right"></i>
                 </div>
-                <div class="flex-grow-1 text-end">
+                <div class="flex-grow-1 text-md-end">
                     <div class="fw-bold fs-5">{{ ride_data.destination_point }}</div>
                     <div class="small opacity-75">Destination</div>
                 </div>
